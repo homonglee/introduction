@@ -108,6 +108,76 @@ ELEMENT_DATA = {
     "Al": (13, "알루미늄", (160, 170, 180)),
 }
 
+# 보석 데이터 (이름 → (메인색, 하이라이트색, 설명용 보조색))
+GEM_DATA = {
+    "루  비": ((220, 40,  60),  (255, 120, 140), (180, 20, 40)),
+    "에메랄드": ((30,  180, 100), (80,  240, 160), (15,  120, 60)),
+    "사파이어": ((40,  80,  220), (100, 160, 255), (20,  50,  170)),
+    "다이아몬드": ((210, 230, 255), (255, 255, 255), (160, 190, 230)),
+    "황수정": ((220, 160, 30),  (255, 210, 80),  (170, 110, 10)),
+    "자수정": ((160, 60,  220), (210, 130, 255), (110, 30,  170)),
+}
+
+# 과일 데이터 (이름 → (몸통색, 포인트색))
+FRUIT_DATA = {
+    "사  과": ((220, 50,  50),  (180, 20,  20)),
+    "바나나": ((240, 220, 30),  (200, 170, 10)),
+    "포  도": ((130, 50,  180), (100, 30,  140)),
+    "딸  기": ((230, 60,  80),  (200, 30,  50)),
+    "수  박": ((60,  180, 80),  (220, 50,  70)),
+    "오렌지": ((240, 130, 30),  (200, 90,  10)),
+    "레  몬": ((240, 230, 50),  (200, 190, 10)),
+    "복숭아": ((245, 160, 130), (220, 100, 80)),
+}
+
+# 날씨 데이터 (이름 → 아이콘 드로우 키)
+WEATHER_ITEMS = ["맑  음", "흐  림", "비   ", "눈   ", "번  개"]
+
+# 방향 데이터 (이름 → 각도 degrees, 0=위)
+ARROW_DATA = {
+    "북   ": 0,   "북동 ": 45,  "동   ": 90,  "남동 ": 135,
+    "남   ": 180, "남서 ": 225, "서   ": 270, "북서 ": 315,
+}
+
+# 표정 데이터 (이름 → 눈썹/입 모드)
+FACE_DATA = {
+    "행  복": "happy",  "슬  픔": "sad",   "화  남": "angry",
+    "놀  람": "surprised", "졸  음": "sleepy", "윙  크": "wink",
+    "신  남": "excited", "당  황": "embarrassed",
+}
+
+# 달 위상 데이터 (이름 → 위상값 0~1, 0=삭, 0.5=보름)
+MOON_DATA = {
+    "삭월(새달)": 0.0, "초승달":  0.12, "상현달": 0.25,
+    "보름달":  0.5,   "하현달": 0.75, "그믐달": 0.88,
+}
+
+# 카드 데이터 (표시문자, 무늬색)
+CARD_ITEMS = [
+    ("♠A", (30,  30,  30)),  ("♥K", (220, 40,  40)),
+    ("♦Q", (220, 40,  40)),  ("♣J", (30,  30,  30)),
+    ("♠10",(30,  30,  30)),  ("♥7", (220, 40,  40)),
+    ("♦3", (220, 40,  40)),  ("♣2", (30,  30,  30)),
+    ("♠9", (30,  30,  30)),  ("♥A", (220, 40,  40)),
+]
+
+# 계절 데이터
+SEASON_ITEMS = ["봄   ", "여름 ", "가을 ", "겨울 "]
+SEASON_COLORS = {
+    "봄   ": ((240, 180, 200), (255, 140, 170), (20, 160, 80)),
+    "여름 ": ((50,  180, 255), (30,  120, 220), (30, 200, 80)),
+    "가을 ": ((220, 130, 40),  (180, 80,  20),  (200, 160, 50)),
+    "겨울 ": ((180, 210, 255), (130, 170, 230), (240, 250, 255)),
+}
+
+# 교통신호 아이템
+TRAFFIC_ITEMS = ["빨간불", "노란불", "초록불"]
+TRAFFIC_COLORS = {
+    "빨간불": (220, 40,  40),
+    "노란불": (240, 200, 30),
+    "초록불": (40,  200, 80),
+}
+
 # ============================================================
 # 게임 설정 (render_type: standard | gauge | color | ball | archery | memory)
 # ============================================================
@@ -479,6 +549,129 @@ GAMES = {
         "accent": (100, 210, 255),      "glow_color":  (80, 195, 255),
         "has_target": True, "target_label": "목표 언어",
         "render_type": "standard",
+    },
+
+    # ── 이미지 기반 10개 ─────────────────────────────────────
+    "traffic": {
+        "name": "신호등 멈추기",
+        "title_line1": "신호등을", "title_line2": "멈춰라!",
+        "subtitle": "목표 신호에서 화면을 멈추세요",
+        "items": TRAFFIC_ITEMS,
+        "item_font_size": 100,
+        "bg_dark": (5, 10, 5), "bg_light": (10, 22, 10),
+        "item_color": (200, 255, 200), "shadow_color": (20, 80, 20),
+        "accent": (100, 255, 100),     "glow_color":  (60, 220, 60),
+        "has_target": True, "target_label": "목표 신호",
+        "render_type": "image_cycle", "draw_key": "traffic",
+    },
+    "card": {
+        "name": "카드 맞추기",
+        "title_line1": "카드를", "title_line2": "맞춰라!",
+        "subtitle": "목표 카드에서 화면을 멈추세요",
+        "items": [c[0] for c in CARD_ITEMS],
+        "item_font_size": 100,
+        "bg_dark": (5, 18, 30), "bg_light": (10, 32, 55),
+        "item_color": (255, 255, 255), "shadow_color": (30, 60, 100),
+        "accent": (100, 200, 255),     "glow_color":  (80, 180, 255),
+        "has_target": True, "target_label": "목표 카드",
+        "render_type": "image_cycle", "draw_key": "card",
+    },
+    "fruit": {
+        "name": "과일 맞추기",
+        "title_line1": "과일을", "title_line2": "맞춰라!",
+        "subtitle": "목표 과일에서 화면을 멈추세요",
+        "items": list(FRUIT_DATA.keys()),
+        "item_font_size": 120,
+        "bg_dark": (15, 22, 5), "bg_light": (28, 42, 10),
+        "item_color": (200, 255, 160), "shadow_color": (50, 110, 20),
+        "accent": (160, 240, 80),      "glow_color":  (140, 220, 60),
+        "has_target": True, "target_label": "목표 과일",
+        "render_type": "image_cycle", "draw_key": "fruit",
+    },
+    "weather": {
+        "name": "날씨 맞추기",
+        "title_line1": "날씨를", "title_line2": "맞춰라!",
+        "subtitle": "목표 날씨에서 화면을 멈추세요",
+        "items": WEATHER_ITEMS,
+        "item_font_size": 110,
+        "bg_dark": (5, 15, 35), "bg_light": (10, 28, 65),
+        "item_color": (180, 220, 255), "shadow_color": (30, 70, 130),
+        "accent": (100, 180, 255),     "glow_color":  (80, 160, 240),
+        "has_target": True, "target_label": "목표 날씨",
+        "render_type": "image_cycle", "draw_key": "weather",
+    },
+    "arrow_dir": {
+        "name": "방향 맞추기",
+        "title_line1": "방향을", "title_line2": "맞춰라!",
+        "subtitle": "목표 방향에서 화면을 멈추세요",
+        "items": list(ARROW_DATA.keys()),
+        "item_font_size": 110,
+        "bg_dark": (8, 5, 28), "bg_light": (16, 10, 52),
+        "item_color": (220, 200, 255), "shadow_color": (70, 50, 150),
+        "accent": (180, 150, 255),     "glow_color":  (160, 130, 255),
+        "has_target": True, "target_label": "목표 방향",
+        "render_type": "image_cycle", "draw_key": "arrow_dir",
+    },
+    "face_draw": {
+        "name": "표정 그리기 맞추기",
+        "title_line1": "표정을", "title_line2": "그려라!",
+        "subtitle": "목표 표정에서 화면을 멈추세요",
+        "items": list(FACE_DATA.keys()),
+        "item_font_size": 110,
+        "bg_dark": (25, 10, 5), "bg_light": (50, 20, 10),
+        "item_color": (255, 220, 160), "shadow_color": (130, 80, 20),
+        "accent": (255, 180, 60),      "glow_color":  (255, 160, 40),
+        "has_target": True, "target_label": "목표 표정",
+        "render_type": "image_cycle", "draw_key": "face_draw",
+    },
+    "moon": {
+        "name": "달 위상 맞추기",
+        "title_line1": "달 모양을", "title_line2": "맞춰라!",
+        "subtitle": "목표 달 모양에서 화면을 멈추세요",
+        "items": list(MOON_DATA.keys()),
+        "item_font_size": 95,
+        "bg_dark": (2, 2, 15), "bg_light": (5, 5, 32),
+        "item_color": (220, 225, 255), "shadow_color": (40, 40, 100),
+        "accent": (180, 200, 255),     "glow_color":  (160, 185, 255),
+        "has_target": True, "target_label": "목표 달 모양",
+        "render_type": "image_cycle", "draw_key": "moon",
+    },
+    "gem": {
+        "name": "보석 맞추기",
+        "title_line1": "보석을", "title_line2": "맞춰라!",
+        "subtitle": "목표 보석에서 화면을 멈추세요",
+        "items": list(GEM_DATA.keys()),
+        "item_font_size": 110,
+        "bg_dark": (5, 5, 20), "bg_light": (12, 12, 42),
+        "item_color": (220, 220, 255), "shadow_color": (60, 60, 140),
+        "accent": (180, 180, 255),     "glow_color":  (160, 160, 255),
+        "has_target": True, "target_label": "목표 보석",
+        "render_type": "image_cycle", "draw_key": "gem",
+    },
+    "season_img": {
+        "name": "계절 맞추기",
+        "title_line1": "계절을", "title_line2": "맞춰라!",
+        "subtitle": "목표 계절에서 화면을 멈추세요",
+        "items": SEASON_ITEMS,
+        "item_font_size": 130,
+        "bg_dark": (8, 14, 8), "bg_light": (16, 28, 16),
+        "item_color": (220, 255, 200), "shadow_color": (40, 90, 30),
+        "accent": (140, 230, 100),     "glow_color":  (120, 210, 80),
+        "has_target": True, "target_label": "목표 계절",
+        "render_type": "image_cycle", "draw_key": "season_img",
+    },
+    "flag_img": {
+        "name": "국기 그림 맞추기",
+        "title_line1": "국기를", "title_line2": "찾아라!",
+        "subtitle": "목표 국기 패턴에서 화면을 멈추세요",
+        "items": ["일  본", "프랑스", "독  일", "이탈리아", "스위스",
+                  "스웨덴", "그리스", "캐나다", "덴마크", "태  국"],
+        "item_font_size": 100,
+        "bg_dark": (8, 12, 28), "bg_light": (14, 22, 52),
+        "item_color": (220, 230, 255), "shadow_color": (40, 60, 130),
+        "accent": (120, 170, 255),     "glow_color":  (100, 155, 255),
+        "has_target": True, "target_label": "목표 국기",
+        "render_type": "image_cycle", "draw_key": "flag_img",
     },
 }
 
@@ -1228,6 +1421,459 @@ def make_anim_result_frame(cfg: dict, render_type: str, t_ratio: float) -> Image
     return img
 
 # ============================================================
+# 이미지 기반 게임 드로어
+# ============================================================
+
+def _draw_traffic_img(img, item, cx, cy, size):
+    draw = ImageDraw.Draw(img, "RGBA")
+    bw, bh = int(size * 0.65), int(size * 1.9)
+    x1, y1 = cx - bw//2, cy - bh//2
+    x2, y2 = cx + bw//2, cy + bh//2
+    draw.rounded_rectangle([x1, y1, x2, y2], radius=int(bw*0.15),
+                            fill=(25, 25, 25), outline=(60, 60, 60), width=4)
+    positions = {"빨간불": 0, "노란불": 1, "초록불": 2}
+    light_colors = [(220,40,40), (240,200,30), (40,200,80)]
+    seg_h = bh // 3
+    for i, col in enumerate(light_colors):
+        lcy = y1 + seg_h * i + seg_h // 2
+        lr  = int(bw * 0.33)
+        is_on = (positions.get(item, -1) == i)
+        fill_col = col if is_on else tuple(c//5 for c in col)
+        draw.ellipse([cx-lr, lcy-lr, cx+lr, lcy+lr], fill=fill_col)
+        if is_on:
+            gl = Image.new("RGBA", (img.width, img.height), (0,0,0,0))
+            gd = ImageDraw.Draw(gl)
+            gd.ellipse([cx-lr*2, lcy-lr*2, cx+lr*2, lcy+lr*2], fill=(*col, 50))
+            img.paste(gl.filter(ImageFilter.GaussianBlur(18)), (0,0), gl.filter(ImageFilter.GaussianBlur(18)))
+
+def _draw_card_img(img, item, cx, cy, size):
+    draw = ImageDraw.Draw(img, "RGBA")
+    cw, ch = int(size * 0.72), int(size * 1.1)
+    x1, y1 = cx - cw//2, cy - ch//2
+    x2, y2 = cx + cw//2, cy + ch//2
+    draw.rounded_rectangle([x1, y1, x2, y2], radius=22,
+                            fill=(250, 250, 250), outline=(180, 180, 180), width=4)
+    suit_map = {"♠": (30,30,30), "♥": (220,40,40), "♦": (220,40,40), "♣": (30,30,30)}
+    suit = item[0] if item else "♠"
+    col  = suit_map.get(suit, (30,30,30))
+    cf   = get_font(int(size*0.55))
+    bb   = cf.getbbox(item)
+    tw, th = bb[2]-bb[0], bb[3]-bb[1]
+    draw.text((cx - tw//2, cy - th//2), item, font=cf, fill=col)
+    sf = get_font(int(size*0.22), bold=False)
+    bb2 = sf.getbbox(suit)
+    draw.text((x1+14, y1+10), suit, font=sf, fill=col)
+
+def _draw_fruit_img(img, item, cx, cy, size):
+    draw = ImageDraw.Draw(img, "RGBA")
+    fc, pc = FRUIT_DATA.get(item, ((200,200,200),(150,150,150)))
+    r = int(size * 0.42)
+    if item in ("사  과", "오렌지", "레  몬", "복숭아"):
+        draw.ellipse([cx-r, cy-r, cx+r, cy+r], fill=fc, outline=pc, width=6)
+        if item == "사  과":
+            sf = get_font(int(size*0.18), bold=False)
+            draw.text((cx-8, cy-r-36), "🍃", font=sf, fill=(40,160,40))
+        elif item == "레  몬":
+            draw.ellipse([cx-int(r*1.3), cy-int(r*0.5), cx+int(r*1.3), cy+int(r*0.5)],
+                         fill=fc, outline=pc, width=6)
+    elif item == "바나나":
+        pts = [(cx-r, cy+int(r*0.5)), (cx, cy-r), (cx+r, cy+int(r*0.5))]
+        draw.polygon(pts, fill=fc, outline=pc)
+        draw.arc([cx-r, cy-r//2, cx+r, cy+r//2], start=10, end=170, fill=pc, width=8)
+    elif item == "포  도":
+        for dy in range(3):
+            for dx in range(3-dy):
+                ox = cx + (dx - (2-dy)//2) * int(r*0.62)
+                oy = cy - r + dy * int(r*0.62)
+                gr = int(r*0.28)
+                draw.ellipse([ox-gr, oy-gr, ox+gr, oy+gr], fill=fc, outline=pc, width=3)
+    elif item == "딸  기":
+        pts = _heart_pts(cx, cy, int(r*0.9))
+        draw.polygon(pts, fill=(230,60,80), outline=(200,30,50))
+        seed_col = (255,200,200)
+        rng2 = random.Random(42)
+        for _ in range(8):
+            sx = cx + rng2.randint(-r//2, r//2)
+            sy = cy + rng2.randint(-r//2, r//2)
+            draw.ellipse([sx-4, sy-4, sx+4, sy+4], fill=seed_col)
+    elif item == "수  박":
+        draw.ellipse([cx-r, cy-r, cx+r, cy+r], fill=(50,170,70), outline=(30,120,40), width=8)
+        draw.ellipse([cx-int(r*0.75), cy-int(r*0.75),
+                      cx+int(r*0.75), cy+int(r*0.75)], fill=(220,50,70))
+        for a in [0, 60, 120, 180, 240, 300]:
+            rad = math.radians(a)
+            draw.line([(cx, cy), (cx+int(r*0.68*math.cos(rad)),
+                                  cy+int(r*0.68*math.sin(rad)))],
+                      fill=(20,100,30), width=4)
+
+def _draw_weather_img(img, item, cx, cy, size):
+    draw = ImageDraw.Draw(img, "RGBA")
+    r = int(size * 0.35)
+    if item == "맑  음":
+        draw.ellipse([cx-r, cy-r, cx+r, cy+r], fill=(255,220,40), outline=(240,180,0), width=6)
+        for a in range(0, 360, 45):
+            rad = math.radians(a)
+            x1s = cx + int((r+10)*math.cos(rad))
+            y1s = cy + int((r+10)*math.sin(rad))
+            x2s = cx + int((r+38)*math.cos(rad))
+            y2s = cy + int((r+38)*math.sin(rad))
+            draw.line([(x1s,y1s),(x2s,y2s)], fill=(255,220,40), width=8)
+    elif item == "흐  림":
+        for ox, oy, cr in [(-int(r*0.6), int(r*0.3), int(r*0.6)),
+                            (0, 0, r), (int(r*0.65), int(r*0.2), int(r*0.55))]:
+            draw.ellipse([cx+ox-cr, cy+oy-cr, cx+ox+cr, cy+oy+cr],
+                         fill=(180,185,195), outline=(150,155,165), width=4)
+    elif item == "비   ":
+        for ox, oy, cr in [(-int(r*0.55), int(r*0.2), int(r*0.55)),
+                            (0, -int(r*0.1), r), (int(r*0.6), int(r*0.15), int(r*0.5))]:
+            draw.ellipse([cx+ox-cr, cy+oy-cr, cx+ox+cr, cy+oy+cr],
+                         fill=(130,140,165), outline=(100,110,140), width=4)
+        for di in range(-2, 3):
+            rx = cx + di * int(r*0.32)
+            ry = cy + int(r*0.75)
+            draw.line([(rx, ry), (rx-12, ry+36)], fill=(80,120,200), width=6)
+    elif item == "눈   ":
+        for ox, oy, cr in [(-int(r*0.5), int(r*0.2), int(r*0.5)),
+                            (0, 0, r), (int(r*0.55), int(r*0.15), int(r*0.45))]:
+            draw.ellipse([cx+ox-cr, cy+oy-cr, cx+ox+cr, cy+oy+cr],
+                         fill=(220,225,240), outline=(180,185,210), width=4)
+        rng = random.Random(7)
+        for _ in range(6):
+            sx = cx + rng.randint(-int(r*0.8), int(r*0.8))
+            sy = cy + int(r*0.7) + rng.randint(0, int(r*0.55))
+            draw.ellipse([sx-8, sy-8, sx+8, sy+8], fill=(230,240,255))
+    elif item == "번  개":
+        for ox, oy, cr in [(-int(r*0.5), 0, int(r*0.5)),
+                            (0, -int(r*0.15), r), (int(r*0.55), 0, int(r*0.45))]:
+            draw.ellipse([cx+ox-cr, cy+oy-cr, cx+ox+cr, cy+oy+cr],
+                         fill=(100,105,115), outline=(70,75,85), width=4)
+        pts = [(cx+20, cy+int(r*0.65)), (cx-18, cy+int(r*1.05)),
+               (cx+8,  cy+int(r*1.05)), (cx-22, cy+int(r*1.52))]
+        draw.line(pts, fill=(255,230,20), width=10)
+
+def _draw_arrow_img(img, item, cx, cy, size):
+    draw = ImageDraw.Draw(img, "RGBA")
+    angle_deg = ARROW_DATA.get(item, 0)
+    angle = math.radians(angle_deg)
+    r = int(size * 0.38)
+    head_r = int(r * 0.35)
+    ex = cx + int(r * math.sin(angle))
+    ey = cy - int(r * math.cos(angle))
+    sx = cx - int(r * 0.7 * math.sin(angle))
+    sy = cy + int(r * 0.7 * math.cos(angle))
+    draw.ellipse([cx-int(r*1.1), cy-int(r*1.1), cx+int(r*1.1), cy+int(r*1.1)],
+                 fill=(30,30,60), outline=(100,100,180), width=5)
+    draw.line([(sx,sy),(ex,ey)], fill=(255,220,60), width=18)
+    perp = math.radians(angle_deg + 90)
+    draw.polygon([
+        (int(ex + head_r*math.sin(angle)), int(ey - head_r*math.cos(angle))),
+        (int(ex - head_r*0.65*math.sin(perp) - head_r*0.4*math.sin(angle)),
+         int(ey + head_r*0.65*math.cos(perp) + head_r*0.4*math.cos(angle))),
+        (int(ex + head_r*0.65*math.sin(perp) - head_r*0.4*math.sin(angle)),
+         int(ey - head_r*0.65*math.cos(perp) + head_r*0.4*math.cos(angle))),
+    ], fill=(255,220,60))
+
+def _draw_face_img(img, item, cx, cy, size):
+    draw = ImageDraw.Draw(img, "RGBA")
+    r    = int(size * 0.4)
+    mode = FACE_DATA.get(item, "happy")
+    draw.ellipse([cx-r, cy-r, cx+r, cy+r], fill=(255,220,100), outline=(220,180,40), width=8)
+    er = int(r * 0.14)
+    ey_off = int(r * 0.28)
+    ex_off = int(r * 0.32)
+    if mode == "wink":
+        draw.ellipse([cx-ex_off-er, cy-ey_off-er, cx-ex_off+er, cy-ey_off+er], fill=(40,30,20))
+        draw.arc([cx+ex_off-er*2, cy-ey_off-er, cx+ex_off+er*2, cy-ey_off+er*2],
+                 start=0, end=180, fill=(40,30,20), width=6)
+    elif mode == "sleepy":
+        draw.arc([cx-ex_off-er*2, cy-ey_off-er, cx-ex_off+er*2, cy-ey_off+er*2],
+                 start=0, end=180, fill=(40,30,20), width=6)
+        draw.arc([cx+ex_off-er*2, cy-ey_off-er, cx+ex_off+er*2, cy-ey_off+er*2],
+                 start=0, end=180, fill=(40,30,20), width=6)
+    else:
+        draw.ellipse([cx-ex_off-er, cy-ey_off-er, cx-ex_off+er, cy-ey_off+er], fill=(40,30,20))
+        draw.ellipse([cx+ex_off-er, cy-ey_off-er, cx+ex_off+er, cy-ey_off+er], fill=(40,30,20))
+    # eyebrow
+    brow_y = cy - ey_off - int(r*0.22)
+    if mode == "angry":
+        draw.line([(cx-ex_off-er*2, brow_y-10),(cx-ex_off+er, brow_y+8)], fill=(40,30,20), width=8)
+        draw.line([(cx+ex_off-er,   brow_y+8), (cx+ex_off+er*2, brow_y-10)], fill=(40,30,20), width=8)
+    elif mode == "surprised":
+        for ox in [-ex_off, ex_off]:
+            draw.arc([cx+ox-er*2, brow_y-er, cx+ox+er*2, brow_y+er],
+                     start=200, end=340, fill=(40,30,20), width=7)
+    elif mode == "embarrassed":
+        draw.line([(cx-ex_off-er*2, brow_y-5),(cx-ex_off+er*2, brow_y+5)], fill=(40,30,20), width=7)
+        draw.line([(cx+ex_off-er*2, brow_y+5),(cx+ex_off+er*2, brow_y-5)], fill=(40,30,20), width=7)
+    # mouth
+    my_off = int(r * 0.28)
+    mw     = int(r * 0.48)
+    if mode in ("happy", "excited"):
+        draw.arc([cx-mw, cy+my_off-mw//2, cx+mw, cy+my_off+mw//2],
+                 start=0, end=180, fill=(40,30,20), width=9)
+        if mode == "excited":
+            draw.ellipse([cx-mw+10, cy+my_off-6, cx+mw-10, cy+my_off+mw//2-6],
+                         fill=(200,60,60))
+    elif mode in ("sad", "embarrassed"):
+        draw.arc([cx-mw, cy+my_off, cx+mw, cy+my_off+mw],
+                 start=180, end=360, fill=(40,30,20), width=9)
+    elif mode == "angry":
+        draw.line([(cx-mw, cy+my_off+14),(cx+mw, cy+my_off+14)], fill=(40,30,20), width=9)
+    elif mode == "surprised":
+        draw.ellipse([cx-int(mw*0.55), cy+my_off-int(mw*0.35),
+                      cx+int(mw*0.55), cy+my_off+int(mw*0.65)],
+                     fill=(40,30,20))
+    elif mode in ("wink", "sleepy"):
+        draw.arc([cx-mw, cy+my_off-mw//2, cx+mw, cy+my_off+mw//2],
+                 start=0, end=180, fill=(40,30,20), width=9)
+
+def _draw_moon_img(img, item, cx, cy, size):
+    draw = ImageDraw.Draw(img, "RGBA")
+    r    = int(size * 0.38)
+    phase = MOON_DATA.get(item, 0.5)
+    face_col = (230, 235, 255)
+    shadow_col = (15, 15, 35)
+    # 달 전체
+    draw.ellipse([cx-r, cy-r, cx+r, cy+r], fill=face_col)
+    # 그림자로 위상 표현
+    if phase == 0.0:
+        draw.ellipse([cx-r, cy-r, cx+r, cy+r], fill=shadow_col)
+    elif phase < 0.5:
+        # 초승달~상현달: 오른쪽 일부만 밝음
+        lit = 1 - phase * 2  # 1→0
+        ell_w = int(r * abs(lit))
+        if lit > 0:
+            draw.ellipse([cx-ell_w, cy-r, cx+r, cy+r], fill=shadow_col)
+        else:
+            draw.ellipse([cx-r, cy-r, cx+ell_w, cy+r], fill=shadow_col)
+    elif phase == 0.5:
+        pass  # 보름달 = 전체 밝음
+    else:
+        # 하현달~그믐달: 왼쪽 일부만 밝음
+        lit = (phase - 0.5) * 2  # 0→1
+        ell_w = int(r * lit)
+        draw.ellipse([cx-r, cy-r, cx+ell_w, cy+r], fill=shadow_col)
+    # 달 윤곽선
+    draw.ellipse([cx-r, cy-r, cx+r, cy+r], outline=(180,185,220), width=4)
+
+def _draw_gem_img(img, item, cx, cy, size):
+    draw = ImageDraw.Draw(img, "RGBA")
+    gc, hc, dc = GEM_DATA.get(item, ((200,200,200),(255,255,255),(150,150,150)))
+    r = int(size * 0.38)
+    # 다이아몬드 형태 보석 (위 삼각+아래 삼각)
+    top_pts  = [(cx, cy-r), (cx-int(r*0.75), cy-int(r*0.18)),
+                (cx+int(r*0.75), cy-int(r*0.18))]
+    bot_pts  = [(cx-int(r*0.75), cy-int(r*0.18)),
+                (cx+int(r*0.75), cy-int(r*0.18)), (cx, cy+r)]
+    draw.polygon(top_pts, fill=hc, outline=(255,255,255), width=4)
+    draw.polygon(bot_pts, fill=gc,  outline=(255,255,255), width=4)
+    # 내부 반사 선
+    draw.line([(cx, cy-r), (cx-int(r*0.35), cy+int(r*0.4))],
+              fill=(*hc, 160), width=4)
+    draw.line([(cx, cy-r), (cx+int(r*0.35), cy+int(r*0.4))],
+              fill=(*hc, 160), width=4)
+    # 글로우
+    gl = Image.new("RGBA", (img.width, img.height), (0,0,0,0))
+    gd = ImageDraw.Draw(gl)
+    gd.ellipse([cx-r*2, cy-r*2, cx+r*2, cy+r*2], fill=(*gc, 35))
+    blurred = gl.filter(ImageFilter.GaussianBlur(28))
+    img.paste(blurred, (0,0), blurred)
+
+def _draw_season_img(img, item, cx, cy, size):
+    draw = ImageDraw.Draw(img, "RGBA")
+    r = int(size * 0.36)
+    if item == "봄   ":
+        # 벚꽃
+        for a in range(0, 360, 72):
+            rad = math.radians(a)
+            px = cx + int(r*0.52*math.cos(rad))
+            py = cy + int(r*0.52*math.sin(rad))
+            pr = int(r*0.32)
+            draw.ellipse([px-pr, py-pr, px+pr, py+pr], fill=(255,190,210), outline=(220,130,160), width=4)
+        draw.ellipse([cx-int(r*0.25), cy-int(r*0.25),
+                      cx+int(r*0.25), cy+int(r*0.25)], fill=(255,230,80))
+    elif item == "여름 ":
+        # 태양+파도
+        draw.ellipse([cx-r, cy-int(r*0.65), cx+r, cy+int(r*0.65)],
+                     fill=(255,210,30), outline=(240,170,0), width=6)
+        for a in range(0, 360, 45):
+            rad = math.radians(a)
+            draw.line([(cx+int(r*1.12*math.cos(rad)), cy+int(r*0.72*math.sin(rad))),
+                       (cx+int(r*1.48*math.cos(rad)), cy+int(r*0.95*math.sin(rad)))],
+                      fill=(255,210,30), width=7)
+    elif item == "가을 ":
+        # 단풍잎
+        leaf_cols = [(220,80,30),(200,130,20),(190,60,40),(210,150,30)]
+        rng = random.Random(3)
+        for i, lc in enumerate(leaf_cols):
+            ox = rng.randint(-int(r*0.3), int(r*0.3))
+            oy = rng.randint(-int(r*0.3), int(r*0.3))
+            pts = _star_pts(cx+ox, cy+oy, r//2, r//5, n=5)
+            draw.polygon(pts, fill=lc, outline=tuple(max(0,c-40) for c in lc))
+    elif item == "겨울 ":
+        # 눈결정
+        for a in range(0, 180, 60):
+            rad = math.radians(a)
+            draw.line([(cx-int(r*math.cos(rad)), cy-int(r*math.sin(rad))),
+                       (cx+int(r*math.cos(rad)), cy+int(r*math.sin(rad)))],
+                      fill=(200,220,255), width=8)
+        for a in range(0, 180, 60):
+            rad = math.radians(a)
+            for br in [0.55]:
+                bx = cx + int(r*br*math.cos(rad))
+                by = cy + int(r*br*math.sin(rad))
+                perp = rad + math.pi/4
+                draw.line([(bx-int(r*0.22*math.cos(perp)), by-int(r*0.22*math.sin(perp))),
+                           (bx+int(r*0.22*math.cos(perp)), by+int(r*0.22*math.sin(perp)))],
+                          fill=(200,220,255), width=6)
+                bx2 = cx - int(r*br*math.cos(rad))
+                by2 = cy - int(r*br*math.sin(rad))
+                draw.line([(bx2-int(r*0.22*math.cos(perp)), by2-int(r*0.22*math.sin(perp))),
+                           (bx2+int(r*0.22*math.cos(perp)), by2+int(r*0.22*math.sin(perp)))],
+                          fill=(200,220,255), width=6)
+        draw.ellipse([cx-int(r*0.16), cy-int(r*0.16),
+                      cx+int(r*0.16), cy+int(r*0.16)], fill=(230,240,255))
+
+def _draw_flag_img_draw(img, item, cx, cy, size):
+    draw = ImageDraw.Draw(img, "RGBA")
+    fw, fh = int(size*1.1), int(size*0.75)
+    x1, y1 = cx - fw//2, cy - fh//2
+    x2, y2 = cx + fw//2, cy + fh//2
+    def rect(xa, ya, xb, yb, col):
+        draw.rectangle([x1+int(fw*xa), y1+int(fh*ya),
+                        x1+int(fw*xb), y1+int(fh*yb)], fill=col)
+    def full(col): draw.rectangle([x1,y1,x2,y2], fill=col)
+    if item == "일  본":
+        full((255,255,255))
+        r2 = int(min(fw,fh)*0.28)
+        draw.ellipse([cx-r2, cy-r2, cx+r2, cy+r2], fill=(188,0,45))
+    elif item == "프랑스":
+        rect(0, 0, 0.333, 1, (0,35,149)); rect(0.333,0,0.667,1,(255,255,255)); rect(0.667,0,1,1,(237,41,57))
+    elif item == "독  일":
+        rect(0,0,1,0.333,(0,0,0)); rect(0,0.333,1,0.667,(221,0,0)); rect(0,0.667,1,1,(255,206,0))
+    elif item == "이탈리아":
+        rect(0,0,0.333,1,(0,146,70)); rect(0.333,0,0.667,1,(255,255,255)); rect(0.667,0,1,1,(206,43,55))
+    elif item == "스위스":
+        full((255,0,0))
+        cw = int(fw*0.175); ch = int(fh*0.5)
+        draw.rectangle([cx-cw//2, cy-ch//2, cx+cw//2, cy+ch//2], fill=(255,255,255))
+        draw.rectangle([cx-ch//2, cy-cw//2, cx+ch//2, cy+cw//2], fill=(255,255,255))
+    elif item == "스웨덴":
+        full((0,106,167))
+        bar_y = int(fh*0.3); bar_h = int(fh*0.22)
+        bar_x = int(fw*0.28); bar_w = int(fw*0.15)
+        draw.rectangle([x1, y1+bar_y, x2, y1+bar_y+bar_h], fill=(254,204,0))
+        draw.rectangle([x1+bar_x, y1, x1+bar_x+bar_w, y2], fill=(254,204,0))
+    elif item == "그리스":
+        stripe_h = fh // 9
+        for i in range(9):
+            col = (13,94,175) if i%2==0 else (255,255,255)
+            draw.rectangle([x1, y1+i*stripe_h, x2, y1+(i+1)*stripe_h], fill=col)
+        canton_w = int(fw*0.38); canton_h = int(fh*0.44)
+        draw.rectangle([x1, y1, x1+canton_w, y1+canton_h], fill=(13,94,175))
+        bar_y2 = int(canton_h*0.33); bar_h2 = int(canton_h*0.22)
+        bar_x2 = int(canton_w*0.33); bar_w2 = int(canton_w*0.22)
+        draw.rectangle([x1, y1+bar_y2, x1+canton_w, y1+bar_y2+bar_h2], fill=(255,255,255))
+        draw.rectangle([x1+bar_x2, y1, x1+bar_x2+bar_w2, y1+canton_h], fill=(255,255,255))
+    elif item == "캐나다":
+        rect(0,0,0.25,1,(255,0,0)); rect(0.25,0,0.75,1,(255,255,255)); rect(0.75,0,1,1,(255,0,0))
+        mr = int(min(fw,fh)*0.2)
+        pts = _star_pts(cx, cy, mr, int(mr*0.45), n=11)
+        draw.polygon(pts, fill=(255,0,0))
+    elif item == "덴마크":
+        full((198,12,48))
+        bar_y3 = int(fh*0.35); bar_h3 = int(fh*0.22)
+        bar_x3 = int(fw*0.28); bar_w3 = int(fw*0.15)
+        draw.rectangle([x1, y1+bar_y3, x2, y1+bar_y3+bar_h3], fill=(255,255,255))
+        draw.rectangle([x1+bar_x3, y1, x1+bar_x3+bar_w3, y2], fill=(255,255,255))
+    elif item == "태  국":
+        rect(0,0,1,0.167,(165,25,49)); rect(0,0.167,1,0.333,(255,255,255))
+        rect(0,0.333,1,0.667,(45,55,120))
+        rect(0,0.667,1,0.833,(255,255,255)); rect(0,0.833,1,1,(165,25,49))
+    draw.rectangle([x1,y1,x2,y2], outline=(100,100,100), width=3)
+
+# ── 마스터 디스패처 ─────────────────────────────────────────
+def draw_image_item(draw_key, img, item, cx, cy, size):
+    if draw_key == "traffic":
+        _draw_traffic_img(img, item, cx, cy, size)
+    elif draw_key == "card":
+        _draw_card_img(img, item, cx, cy, size)
+    elif draw_key == "fruit":
+        _draw_fruit_img(img, item, cx, cy, size)
+    elif draw_key == "weather":
+        _draw_weather_img(img, item, cx, cy, size)
+    elif draw_key == "arrow_dir":
+        _draw_arrow_img(img, item, cx, cy, size)
+    elif draw_key == "face_draw":
+        _draw_face_img(img, item, cx, cy, size)
+    elif draw_key == "moon":
+        _draw_moon_img(img, item, cx, cy, size)
+    elif draw_key == "gem":
+        _draw_gem_img(img, item, cx, cy, size)
+    elif draw_key == "season_img":
+        _draw_season_img(img, item, cx, cy, size)
+    elif draw_key == "flag_img":
+        _draw_flag_img_draw(img, item, cx, cy, size)
+
+def draw_image_header(img, cfg, target, draw_key):
+    """헤더에 목표 미니 이미지를 그려 target을 시각적으로 보여준다."""
+    draw = ImageDraw.Draw(img, "RGBA")
+    draw.rectangle([0, 0, WIDTH, 220], fill=(*cfg["bg_dark"], 200))
+    draw.line([(0, 220), (WIDTH, 220)], fill=(*cfg["accent"], 180), width=3)
+    title_font = get_font(68)
+    title = cfg["title_line1"] + " " + cfg["title_line2"]
+    draw_centered_text(img, title, 75, title_font, cfg["item_color"])
+    if target:
+        sub_font  = get_font(40, bold=False)
+        label     = f"{cfg['target_label']}: {target}"
+        bb        = sub_font.getbbox(label)
+        lw        = bb[2] - bb[0]
+        mini_size = 68
+        total_w   = lw + mini_size + 20
+        lx        = (WIDTH - total_w) // 2
+        ly        = 165 - (bb[3]-bb[1])//2
+        draw.text((lx, ly), label, font=sub_font, fill=cfg["accent"])
+        mini_cx = lx + lw + 20 + mini_size // 2
+        mini_cy = 165
+        draw_image_item(draw_key, img, target, mini_cx, mini_cy, mini_size)
+    else:
+        sub_font = get_font(40, bold=False)
+        draw_centered_text(img, cfg["subtitle"], 165, sub_font, (200, 200, 200))
+
+def make_image_cycle_frame(cfg, item, t, flash_intensity=0.0, target=None):
+    draw_key = cfg.get("draw_key", "")
+    img  = make_bg(cfg, t)
+    draw_particles(ImageDraw.Draw(img, "RGBA"), t, cfg["accent"])
+    draw_image_header(img, cfg, target, draw_key)
+    cx, cy = WIDTH // 2, HEIGHT // 2 - 60
+    draw_image_item(draw_key, img, item, cx, cy, 400)
+    name_font = get_font(cfg["item_font_size"])
+    draw_centered_text(img, item, cy + 340, name_font,
+                       cfg["item_color"], shadow=cfg["shadow_color"],
+                       glow=cfg["glow_color"])
+    progress = (t - T_INTRO_END) / (T_CYCLE_END - T_INTRO_END)
+    draw_bottom(img, cfg, progress)
+    return apply_flash(img, flash_intensity)
+
+def make_image_result_frame(cfg, result, t_ratio):
+    draw_key = cfg.get("draw_key", "")
+    img   = make_bg(cfg, T_CYCLE_END / DURATION + t_ratio * 0.2)
+    eased = 1 - (1 - min(t_ratio * 2.5, 1.0)) ** 3
+    draw_particles(ImageDraw.Draw(img, "RGBA"), t_ratio * 5, cfg["accent"], count=35)
+    draw_image_header(img, cfg, None, draw_key)
+    size = int(380 * (0.65 + 0.35 * eased))
+    cx, cy = WIDTH // 2, HEIGHT // 2 - 60
+    draw_image_item(draw_key, img, result, cx, cy, size)
+    name_font = get_font(cfg["item_font_size"])
+    draw_centered_text(img, result, cy + size//2 + 80, name_font,
+                       cfg["item_color"], shadow=cfg["shadow_color"],
+                       glow=cfg["glow_color"])
+    draw_centered_text(img, "댓글로 결과 알려줘! 👇",
+                       HEIGHT - 310, get_font(52, bold=False), (200, 200, 200))
+    draw_bottom(img, cfg, 1.0, cta="결과 확인!")
+    return img
+
+# ============================================================
 # 아이템 시퀀스 빌더 (점점 빠르게)
 # ============================================================
 def build_item_sequence(items: list, total_frames: int) -> list:
@@ -1248,6 +1894,7 @@ def generate_frames(cfg: dict, result_item=None, target=None):
     rt      = cfg.get("render_type", "standard")
     is_anim = rt in ("gauge", "ball", "archery")          # 순수 애니메이션 (items 없음)
     is_vis  = rt in ("shape", "planet", "element", "dice", "clock")  # 비주얼 결과
+    is_img  = rt == "image_cycle"
     items   = cfg.get("items")
 
     if not is_anim and items and result_item is None:
@@ -1298,6 +1945,8 @@ def generate_frames(cfg: dict, result_item=None, target=None):
         yield from _seq_cycle(make_element_frame)
     elif rt == "dice":
         yield from _seq_cycle(make_dice_frame)
+    elif rt == "image_cycle":
+        yield from _seq_cycle(make_image_cycle_frame)
     else:  # standard / memory
         yield from _seq_cycle(make_cycle_frame)
 
@@ -1308,6 +1957,8 @@ def generate_frames(cfg: dict, result_item=None, target=None):
             yield make_anim_result_frame(cfg, rt, tr)
         elif is_vis:
             yield make_visual_result_frame(cfg, rt, result_item, tr)
+        elif is_img:
+            yield make_image_result_frame(cfg, result_item, tr)
         else:
             yield make_result_frame(cfg, result_item, tr)
 
