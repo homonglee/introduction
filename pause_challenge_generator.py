@@ -60,6 +60,55 @@ COLOR_DATA = {
 }
 
 # ============================================================
+# 신규 게임용 상수 데이터
+# ============================================================
+
+# 행성 데이터
+PLANET_DATA = {
+    "수  성": {"col": (175, 165, 155), "r": 80,  "rings": False, "glow": (210, 200, 190)},
+    "금  성": {"col": (240, 220, 130), "r": 130, "rings": False, "glow": (255, 240, 150)},
+    "지  구": {"col": (45,  120, 200), "r": 140, "rings": False, "glow": (70,  150, 235)},
+    "화  성": {"col": (200, 80,  50),  "r": 110, "rings": False, "glow": (235, 110, 75)},
+    "목  성": {"col": (210, 170, 100), "r": 230, "rings": False, "glow": (240, 200, 130)},
+    "토  성": {"col": (230, 200, 140), "r": 195, "rings": True,  "glow": (255, 225, 165)},
+    "천왕성": {"col": (130, 210, 220), "r": 175, "rings": False, "glow": (160, 240, 250)},
+    "해왕성": {"col": (60,  80,  210), "r": 170, "rings": False, "glow": (90,  110, 245)},
+}
+
+# 도형 데이터
+SHAPE_ORDER  = ["원", "삼각형", "사각형", "별", "하트", "마름모", "오각형", "육각형"]
+SHAPE_COLORS = [
+    (255, 80,  80),  (80,  180, 255), (80,  255, 120), (255, 220, 50),
+    (255, 100, 180), (200, 80,  255), (50,  220, 220), (255, 160, 50),
+]
+
+# 주사위 점 위치 (비율)
+DICE_DOTS = {
+    "1": [(0.50, 0.50)],
+    "2": [(0.28, 0.28), (0.72, 0.72)],
+    "3": [(0.28, 0.28), (0.50, 0.50), (0.72, 0.72)],
+    "4": [(0.28, 0.28), (0.72, 0.28), (0.28, 0.72), (0.72, 0.72)],
+    "5": [(0.28, 0.28), (0.72, 0.28), (0.50, 0.50), (0.28, 0.72), (0.72, 0.72)],
+    "6": [(0.28, 0.25), (0.72, 0.25), (0.28, 0.50), (0.72, 0.50), (0.28, 0.75), (0.72, 0.75)],
+}
+
+# 원소 데이터 (기호 → (원자번호, 한국어명, 배경색))
+ELEMENT_DATA = {
+    "H":  (1,  "수  소", (50,  120, 200)),
+    "He": (2,  "헬  륨", (100, 60,  180)),
+    "Li": (3,  "리  튬", (200, 80,  60)),
+    "C":  (6,  "탄  소", (60,  60,  60)),
+    "N":  (7,  "질  소", (60,  100, 200)),
+    "O":  (8,  "산  소", (200, 60,  60)),
+    "Na": (11, "나트륨", (200, 140, 50)),
+    "Fe": (26, "철   ", (150, 80,  50)),
+    "Cu": (29, "구  리", (200, 130, 50)),
+    "Ag": (47, "은   ", (160, 160, 170)),
+    "Au": (79, "금   ", (220, 180, 30)),
+    "Al": (13, "알루미늄", (160, 170, 180)),
+}
+
+# ============================================================
 # 게임 설정 (render_type: standard | gauge | color | ball | archery | memory)
 # ============================================================
 GAMES = {
@@ -297,6 +346,139 @@ GAMES = {
         "accent": (255, 200, 50),       "glow_color":  (255, 220, 80),
         "has_target": True, "target_label": "찾을 기호",
         "render_type": "memory",
+    },
+
+    # ── 신규 10개 (타겟 지정 스타일) ──────────────────────────
+    "zodiac": {
+        "name": "별자리 맞추기",
+        "title_line1": "별자리를", "title_line2": "맞춰라!",
+        "subtitle": "목표 별자리에서 화면을 멈추세요",
+        "items": ["양자리 ♈", "황소자리 ♉", "쌍둥이자리 ♊", "게자리 ♋",
+                  "사자자리 ♌", "처녀자리 ♍", "천칭자리 ♎", "전갈자리 ♏",
+                  "사수자리 ♐", "염소자리 ♑", "물병자리 ♒", "물고기자리 ♓"],
+        "item_font_size": 110,
+        "bg_dark": (5, 5, 28), "bg_light": (10, 10, 55),
+        "item_color": (200, 210, 255), "shadow_color": (60, 70, 160),
+        "accent": (180, 160, 255),      "glow_color":  (160, 140, 255),
+        "has_target": True, "target_label": "목표 별자리",
+        "render_type": "standard",
+    },
+    "planet": {
+        "name": "행성 맞추기",
+        "title_line1": "행성을", "title_line2": "맞춰라!",
+        "subtitle": "목표 행성에서 화면을 멈추세요",
+        "items": list(PLANET_DATA.keys()),
+        "item_font_size": 130,
+        "bg_dark": (3, 3, 18), "bg_light": (8, 8, 35),
+        "item_color": (220, 230, 255), "shadow_color": (30, 30, 80),
+        "accent": (150, 180, 255),      "glow_color":  (120, 160, 255),
+        "has_target": True, "target_label": "목표 행성",
+        "render_type": "planet",
+    },
+    "kpop": {
+        "name": "K-POP 맞추기",
+        "title_line1": "K-POP", "title_line2": "그룹 맞추기!",
+        "subtitle": "목표 그룹에서 화면을 멈추세요",
+        "items": ["BTS", "aespa", "IVE", "NewJeans",
+                  "BLACKPINK", "TWICE", "EXO", "SEVENTEEN",
+                  "Stray Kids", "LE SSERAFIM", "NCT 127", "ITZY"],
+        "item_font_size": 110,
+        "bg_dark": (25, 5, 35), "bg_light": (45, 10, 65),
+        "item_color": (255, 180, 255), "shadow_color": (130, 30, 150),
+        "accent": (255, 100, 255),      "glow_color":  (230, 80, 255),
+        "has_target": True, "target_label": "목표 그룹",
+        "render_type": "standard",
+    },
+    "sport": {
+        "name": "스포츠 맞추기",
+        "title_line1": "스포츠를", "title_line2": "맞춰라!",
+        "subtitle": "목표 스포츠에서 화면을 멈추세요",
+        "items": ["축  구", "야  구", "농  구", "배  구",
+                  "수  영", "테니스", "골  프", "탁  구",
+                  "배드민턴", "스  키", "복  싱", "사이클"],
+        "item_font_size": 140,
+        "bg_dark": (5, 20, 10), "bg_light": (10, 38, 20),
+        "item_color": (130, 255, 160), "shadow_color": (30, 100, 55),
+        "accent": (80, 220, 130),       "glow_color":  (60, 200, 110),
+        "has_target": True, "target_label": "목표 스포츠",
+        "render_type": "standard",
+    },
+    "element": {
+        "name": "원소 기호 맞추기",
+        "title_line1": "원소를", "title_line2": "찾아라!",
+        "subtitle": "목표 원소 기호에서 화면을 멈추세요",
+        "items": list(ELEMENT_DATA.keys()),
+        "item_font_size": 220,
+        "bg_dark": (5, 15, 25), "bg_light": (10, 28, 48),
+        "item_color": (255, 255, 255), "shadow_color": (40, 80, 130),
+        "accent": (100, 200, 255),      "glow_color":  (80, 180, 255),
+        "has_target": True, "target_label": "찾을 원소",
+        "render_type": "element",
+    },
+    "shape": {
+        "name": "도형 맞추기",
+        "title_line1": "도형을", "title_line2": "맞춰라!",
+        "subtitle": "목표 도형에서 화면을 멈추세요",
+        "items": SHAPE_ORDER,
+        "item_font_size": 100,
+        "bg_dark": (10, 8, 25), "bg_light": (20, 16, 50),
+        "item_color": (255, 255, 255), "shadow_color": (0, 0, 0),
+        "accent": (255, 255, 255),      "glow_color":  (200, 200, 255),
+        "has_target": True, "target_label": "목표 도형",
+        "render_type": "shape",
+    },
+    "clock": {
+        "name": "시계 맞추기",
+        "title_line1": "시계를", "title_line2": "멈춰라!",
+        "subtitle": "목표 시각에서 화면을 멈추세요",
+        "items": ["1시", "2시", "3시", "4시", "5시", "6시",
+                  "7시", "8시", "9시", "10시", "11시", "12시"],
+        "item_font_size": 130,
+        "bg_dark": (8, 8, 22), "bg_light": (16, 16, 45),
+        "item_color": (255, 240, 180), "shadow_color": (100, 90, 30),
+        "accent": (255, 210, 80),       "glow_color":  (255, 200, 60),
+        "has_target": True, "target_label": "목표 시각",
+        "render_type": "clock",
+    },
+    "dice": {
+        "name": "주사위 맞추기",
+        "title_line1": "주사위를", "title_line2": "멈춰라!",
+        "subtitle": "목표 숫자에서 화면을 멈추세요",
+        "items": ["1", "2", "3", "4", "5", "6"],
+        "item_font_size": 130,
+        "bg_dark": (8, 5, 20), "bg_light": (18, 12, 42),
+        "item_color": (255, 255, 255), "shadow_color": (60, 40, 100),
+        "accent": (200, 150, 255),      "glow_color":  (180, 130, 255),
+        "has_target": True, "target_label": "목표 숫자",
+        "render_type": "dice",
+    },
+    "flower": {
+        "name": "꽃 맞추기",
+        "title_line1": "꽃을", "title_line2": "맞춰라!",
+        "subtitle": "목표 꽃에서 화면을 멈추세요",
+        "items": ["장  미", "튤  립", "벚  꽃", "해바라기",
+                  "국  화", "라일락", "수선화", "민들레",
+                  "진달래", "개나리", "백  합", "코스모스"],
+        "item_font_size": 150,
+        "bg_dark": (25, 8, 18), "bg_light": (48, 14, 35),
+        "item_color": (255, 200, 220), "shadow_color": (130, 40, 80),
+        "accent": (255, 140, 180),      "glow_color":  (255, 120, 160),
+        "has_target": True, "target_label": "목표 꽃",
+        "render_type": "standard",
+    },
+    "language": {
+        "name": "언어 맞추기",
+        "title_line1": "언어를", "title_line2": "맞춰라!",
+        "subtitle": "목표 언어에서 화면을 멈추세요",
+        "items": ["한국어", "영  어", "일본어", "중국어",
+                  "스페인어", "프랑스어", "독일어", "아랍어",
+                  "러시아어", "포르투갈어", "이탈리아어", "힌디어"],
+        "item_font_size": 130,
+        "bg_dark": (8, 15, 28), "bg_light": (15, 28, 52),
+        "item_color": (180, 240, 255), "shadow_color": (35, 80, 130),
+        "accent": (100, 210, 255),      "glow_color":  (80, 195, 255),
+        "has_target": True, "target_label": "목표 언어",
+        "render_type": "standard",
     },
 }
 
@@ -683,6 +865,320 @@ def make_archery_frame(cfg: dict, t: float) -> Image.Image:
     return img
 
 # ============================================================
+# 도형 그리기 헬퍼
+# ============================================================
+def _star_pts(cx, cy, r_out, r_in, n=5):
+    pts = []
+    for i in range(2 * n):
+        r = r_out if i % 2 == 0 else r_in
+        a = math.pi * i / n - math.pi / 2
+        pts.append((int(cx + r * math.cos(a)), int(cy + r * math.sin(a))))
+    return pts
+
+def _heart_pts(cx, cy, s, steps=48):
+    pts = []
+    for i in range(steps):
+        t = 2 * math.pi * i / steps - math.pi / 2
+        x = s * 16 * math.sin(t) ** 3 / 16
+        y = -s * (13 * math.cos(t) - 5 * math.cos(2*t) - 2 * math.cos(3*t) - math.cos(4*t)) / 16
+        pts.append((int(cx + x), int(cy + y)))
+    return pts
+
+def _hex_pts(cx, cy, r):
+    return [(int(cx + r * math.cos(math.pi * i / 3)),
+             int(cy + r * math.sin(math.pi * i / 3))) for i in range(6)]
+
+def _draw_shape(draw, name, cx, cy, size, fill_col, outline_col=(255, 255, 255)):
+    s = int(size)
+    if name == "원":
+        draw.ellipse([cx-s, cy-s, cx+s, cy+s], fill=fill_col,
+                     outline=outline_col, width=8)
+    elif name == "삼각형":
+        pts = [(cx, cy-s),
+               (cx - int(s*0.866), cy + s//2),
+               (cx + int(s*0.866), cy + s//2)]
+        draw.polygon(pts, fill=fill_col, outline=outline_col)
+    elif name == "사각형":
+        draw.rectangle([cx-s, cy-s, cx+s, cy+s], fill=fill_col,
+                       outline=outline_col, width=8)
+    elif name == "별":
+        draw.polygon(_star_pts(cx, cy, s, int(s*0.4)), fill=fill_col,
+                     outline=outline_col)
+    elif name == "하트":
+        draw.polygon(_heart_pts(cx, cy + s//5, int(s*0.92)), fill=fill_col,
+                     outline=outline_col)
+    elif name == "마름모":
+        draw.polygon([(cx, cy-s), (cx+s, cy), (cx, cy+s), (cx-s, cy)],
+                     fill=fill_col, outline=outline_col)
+    elif name == "오각형":
+        pts = [(cx + int(s*math.cos(2*math.pi*i/5 - math.pi/2)),
+                cy + int(s*math.sin(2*math.pi*i/5 - math.pi/2)))
+               for i in range(5)]
+        draw.polygon(pts, fill=fill_col, outline=outline_col)
+    elif name == "육각형":
+        draw.polygon(_hex_pts(cx, cy, s), fill=fill_col, outline=outline_col)
+
+def _draw_planet(img, planet_name, cx, cy, r):
+    pd   = PLANET_DATA.get(planet_name, PLANET_DATA["지  구"])
+    col  = pd["col"]
+    draw = ImageDraw.Draw(img, "RGBA")
+    # 글로우
+    gl   = Image.new("RGBA", (WIDTH, HEIGHT), (0, 0, 0, 0))
+    gd   = ImageDraw.Draw(gl)
+    gd.ellipse([cx - r*2, cy - r*2, cx + r*2, cy + r*2],
+               fill=(*pd["glow"], 35))
+    blurred = gl.filter(ImageFilter.GaussianBlur(32))
+    img.paste(blurred, (0, 0), blurred)
+    draw2 = ImageDraw.Draw(img, "RGBA")
+    # 토성 고리
+    if pd.get("rings"):
+        for width_mul, alpha in [(1.85, 55), (1.65, 90), (1.45, 70)]:
+            ra, rb = int(r * width_mul), int(r * 0.38)
+            draw2.ellipse([cx-ra, cy-rb, cx+ra, cy+rb],
+                          outline=(*col, alpha), width=10)
+    # 행성 본체
+    draw2.ellipse([cx-r, cy-r, cx+r, cy+r],
+                  fill=col, outline=(255, 255, 255, 50), width=3)
+
+def _draw_dice(draw, value, x1, y1, side):
+    dr   = int(side * 0.065)
+    draw.rounded_rectangle([x1, y1, x1+side, y1+side], radius=int(side*0.12),
+                            fill=(240, 240, 240), outline=(30, 30, 30), width=6)
+    for (fx, fy) in DICE_DOTS.get(str(value), []):
+        dx = x1 + int(side * fx)
+        dy = y1 + int(side * fy)
+        draw.ellipse([dx-dr, dy-dr, dx+dr, dy+dr], fill=(20, 20, 20))
+
+def _draw_element_card(img, symbol, cx, cy, card_h=560):
+    num, name, col = ELEMENT_DATA.get(symbol, (0, "?", (100, 100, 100)))
+    draw = ImageDraw.Draw(img, "RGBA")
+    cw   = 480
+    x1, y1 = cx - cw//2, cy - card_h//2
+    x2, y2 = cx + cw//2, cy + card_h//2
+    # 카드 배경
+    draw.rounded_rectangle([x1, y1, x2, y2], radius=32,
+                            fill=(*col, 220), outline=(255, 255, 255, 100), width=4)
+    # 원자번호
+    num_f = get_font(55, bold=False)
+    bb    = num_f.getbbox(str(num))
+    draw.text((x1 + 20, y1 + 14), str(num), font=num_f, fill=(255, 255, 255, 180))
+    # 기호 (크게)
+    sym_f = get_font(230)
+    bb2   = sym_f.getbbox(symbol)
+    draw.text((cx - (bb2[2]-bb2[0])//2, cy - (bb2[3]-bb2[1])//2 - 20),
+              symbol, font=sym_f, fill=(255, 255, 255))
+    # 원소명
+    nm_f  = get_font(68, bold=False)
+    bb3   = nm_f.getbbox(name)
+    draw.text((cx - (bb3[2]-bb3[0])//2, y2 - 90), name, font=nm_f,
+              fill=(255, 255, 255, 210))
+
+def _draw_clock_face(img, cfg, t, speed_factor, frozen_hour=None):
+    """시계 얼굴을 그립니다. frozen_hour가 있으면 해당 시각에 고정."""
+    draw = ImageDraw.Draw(img, "RGBA")
+    cx, cy, r = WIDTH // 2, HEIGHT // 2 - 60, 340
+
+    # 페이스
+    draw.ellipse([cx-r-4, cy-r-4, cx+r+4, cy+r+4],
+                 fill=(255, 255, 255, 30), outline=(255,255,255,80), width=6)
+    draw.ellipse([cx-r, cy-r, cx+r, cy+r], fill=(*cfg["bg_dark"], 240))
+    draw.ellipse([cx-r, cy-r, cx+r, cy+r], outline=(200, 200, 200), width=6)
+
+    # 눈금 & 숫자
+    mf = get_font(50, bold=False)
+    for h in range(1, 13):
+        angle = 2 * math.pi * h / 12 - math.pi / 2
+        mx = cx + (r - 68) * math.cos(angle)
+        my = cy + (r - 68) * math.sin(angle)
+        bb = mf.getbbox(str(h))
+        draw.text((mx - (bb[2]-bb[0])//2, my - (bb[3]-bb[1])//2),
+                  str(h), font=mf, fill=(200, 200, 200))
+    for m in range(60):
+        a   = 2 * math.pi * m / 60 - math.pi / 2
+        l1  = r - 12 if m % 5 else r - 14
+        l2  = r - 30 if m % 5 else r - 48
+        lw  = 2 if m % 5 else 5
+        draw.line([(cx + l1*math.cos(a), cy + l1*math.sin(a)),
+                   (cx + l2*math.cos(a), cy + l2*math.sin(a))],
+                  fill=(150, 150, 150), width=lw)
+
+    if frozen_hour is not None:
+        ha = 2 * math.pi * frozen_hour / 12 - math.pi / 2
+        ma = ha * 12
+        sa = ha * 720
+    else:
+        full = t * speed_factor * 2 * math.pi / 12
+        ha   = full % (2 * math.pi) - math.pi / 2
+        ma   = (full * 12) % (2 * math.pi) - math.pi / 2
+        sa   = (full * 720) % (2 * math.pi) - math.pi / 2
+
+    # 시침
+    draw.line([(cx, cy), (cx + r*0.58*math.cos(ha), cy + r*0.58*math.sin(ha))],
+              fill=(255, 255, 255), width=14)
+    # 분침
+    draw.line([(cx, cy), (cx + r*0.82*math.cos(ma), cy + r*0.82*math.sin(ma))],
+              fill=(200, 200, 220), width=8)
+    # 초침 (빨강)
+    draw.line([(cx, cy), (cx + r*0.88*math.cos(sa), cy + r*0.88*math.sin(sa))],
+              fill=(255, 50, 50), width=4)
+    # 중심 점
+    draw.ellipse([cx-14, cy-14, cx+14, cy+14], fill=(255, 255, 255))
+    draw.ellipse([cx-7, cy-7, cx+7, cy+7], fill=(255, 50, 50))
+
+    # 현재 시각 레이블 (고정모드 제외)
+    if frozen_hour is None:
+        cur_h = int((ha + math.pi / 2) / (2 * math.pi) * 12) % 12
+        if cur_h == 0:
+            cur_h = 12
+        draw_centered_text(img, f"{cur_h}시", HEIGHT // 2 + 340, get_font(110),
+                           cfg["item_color"], glow=cfg["glow_color"])
+
+# ============================================================
+# 도형 게임 사이클 프레임
+# ============================================================
+def make_shape_frame(cfg, shape_name, t, flash_intensity=0.0, target=None):
+    img  = make_bg(cfg, t)
+    draw = ImageDraw.Draw(img, "RGBA")
+    draw_particles(draw, t, cfg["accent"])
+    draw_header(img, cfg, target_text=target)
+
+    cx, cy = WIDTH // 2, HEIGHT // 2 - 60
+    idx    = SHAPE_ORDER.index(shape_name) if shape_name in SHAPE_ORDER else 0
+    col    = SHAPE_COLORS[idx % len(SHAPE_COLORS)]
+    _draw_shape(draw, shape_name, cx, cy, 270, col)
+
+    name_font = get_font(110)
+    draw_centered_text(img, shape_name, cy + 340, name_font, col,
+                       shadow=(0, 0, 0), glow=col)
+
+    progress = (t - T_INTRO_END) / (T_CYCLE_END - T_INTRO_END)
+    draw_bottom(img, cfg, progress)
+    return apply_flash(img, flash_intensity)
+
+# ============================================================
+# 행성 게임 사이클 프레임
+# ============================================================
+def make_planet_frame(cfg, planet_name, t, flash_intensity=0.0, target=None):
+    img  = make_bg(cfg, t)
+    draw_particles(ImageDraw.Draw(img, "RGBA"), t, cfg["accent"], count=25)
+    draw_header(img, cfg, target_text=target)
+
+    pd  = PLANET_DATA.get(planet_name, list(PLANET_DATA.values())[0])
+    cx  = WIDTH // 2
+    # 토성은 고리 공간 확보를 위해 약간 위로
+    cy  = HEIGHT // 2 - (80 if pd.get("rings") else 30)
+    r   = pd["r"]
+    _draw_planet(img, planet_name, cx, cy, r)
+
+    name_font = get_font(120)
+    draw_centered_text(img, planet_name, cy + r + 130, name_font,
+                       pd["col"], shadow=(0, 0, 0), glow=pd["glow"])
+
+    progress = (t - T_INTRO_END) / (T_CYCLE_END - T_INTRO_END)
+    draw_bottom(img, cfg, progress)
+    return apply_flash(img, flash_intensity)
+
+# ============================================================
+# 원소 게임 사이클 프레임
+# ============================================================
+def make_element_frame(cfg, symbol, t, flash_intensity=0.0, target=None):
+    img  = make_bg(cfg, t)
+    draw_particles(ImageDraw.Draw(img, "RGBA"), t, cfg["accent"])
+    draw_header(img, cfg, target_text=target)
+
+    _draw_element_card(img, symbol, WIDTH // 2, HEIGHT // 2 - 20)
+
+    progress = (t - T_INTRO_END) / (T_CYCLE_END - T_INTRO_END)
+    draw_bottom(img, cfg, progress)
+    return apply_flash(img, flash_intensity)
+
+# ============================================================
+# 시계 애니메이션 프레임
+# ============================================================
+def make_clock_anim_frame(cfg, t, target=None):
+    img  = make_bg(cfg, t)
+    draw_particles(ImageDraw.Draw(img, "RGBA"), t, cfg["accent"], count=14)
+    draw_header(img, cfg, target_text=target)
+
+    cycle_ratio  = (t - T_INTRO_END) / (T_CYCLE_END - T_INTRO_END)
+    speed_factor = 1.2 + cycle_ratio * 4.5
+    _draw_clock_face(img, cfg, t, speed_factor)
+
+    progress = (t - T_INTRO_END) / (T_CYCLE_END - T_INTRO_END)
+    draw_bottom(img, cfg, progress)
+    return img
+
+# ============================================================
+# 주사위 게임 사이클 프레임
+# ============================================================
+def make_dice_frame(cfg, value, t, flash_intensity=0.0, target=None):
+    img  = make_bg(cfg, t)
+    draw = ImageDraw.Draw(img, "RGBA")
+    draw_particles(draw, t, cfg["accent"])
+    draw_header(img, cfg, target_text=target)
+
+    side = 520
+    x1   = (WIDTH  - side) // 2
+    y1   = (HEIGHT - side) // 2 - 40
+    _draw_dice(draw, value, x1, y1, side)
+
+    progress = (t - T_INTRO_END) / (T_CYCLE_END - T_INTRO_END)
+    draw_bottom(img, cfg, progress)
+    return apply_flash(img, flash_intensity)
+
+# ============================================================
+# 비주얼 결과 프레임 (shape / planet / element / dice / clock)
+# ============================================================
+def make_visual_result_frame(cfg, rt, result, t_ratio):
+    img   = make_bg(cfg, T_CYCLE_END / DURATION + t_ratio * 0.2)
+    eased = 1 - (1 - min(t_ratio * 2.5, 1.0)) ** 3
+    draw_particles(ImageDraw.Draw(img, "RGBA"), t_ratio * 5, cfg["accent"], count=35)
+    draw_header(img, cfg)
+
+    cx, cy = WIDTH // 2, HEIGHT // 2
+
+    if rt == "shape":
+        idx  = SHAPE_ORDER.index(result) if result in SHAPE_ORDER else 0
+        col  = SHAPE_COLORS[idx % len(SHAPE_COLORS)]
+        size = int(260 * (0.65 + 0.35 * eased))
+        _draw_shape(ImageDraw.Draw(img, "RGBA"), result, cx, cy - 60, size, col)
+        draw_centered_text(img, result, cy + size + 50, get_font(110), col,
+                           shadow=(0, 0, 0), glow=col)
+
+    elif rt == "planet":
+        pd  = PLANET_DATA.get(result, list(PLANET_DATA.values())[0])
+        r   = int(pd["r"] * (0.65 + 0.35 * eased))
+        pcy = cy - (60 if pd.get("rings") else 20)
+        _draw_planet(img, result, cx, pcy, r)
+        draw_centered_text(img, result, pcy + r + 120, get_font(115),
+                           pd["col"], shadow=(0, 0, 0), glow=pd["glow"])
+
+    elif rt == "element":
+        card_h = int(520 * (0.65 + 0.35 * eased))
+        _draw_element_card(img, result, cx, cy - 20, card_h)
+
+    elif rt == "dice":
+        side = int(500 * (0.65 + 0.35 * eased))
+        x1   = cx - side // 2
+        y1   = cy - side // 2 - 30
+        _draw_dice(ImageDraw.Draw(img, "RGBA"), result, x1, y1, side)
+
+    elif rt == "clock":
+        # 시계를 목표 시각에 고정 (결과로 표시)
+        try:
+            frozen_h = int(result.replace("시", ""))
+        except Exception:
+            frozen_h = 12
+        _draw_clock_face(img, cfg, 0, 1.0, frozen_hour=frozen_h)
+        draw_centered_text(img, result, HEIGHT // 2 + 350, get_font(110),
+                           cfg["item_color"], glow=cfg["glow_color"])
+
+    draw_centered_text(img, "댓글로 결과 알려줘! 👇",
+                       HEIGHT - 310, get_font(52, bold=False), (200, 200, 200))
+    draw_bottom(img, cfg, 1.0, cta="결과 확인!")
+    return img
+
+# ============================================================
 # 결과 프레임 ("정답!" 없음)
 # ============================================================
 def make_result_frame(cfg: dict, result: str, t_ratio: float) -> Image.Image:
@@ -749,16 +1245,17 @@ def build_item_sequence(items: list, total_frames: int) -> list:
 # 메인 프레임 생성기
 # ============================================================
 def generate_frames(cfg: dict, result_item=None, target=None):
-    rt          = cfg.get("render_type", "standard")
-    is_anim     = rt in ("gauge", "ball", "archery")
-    items       = cfg.get("items")
+    rt      = cfg.get("render_type", "standard")
+    is_anim = rt in ("gauge", "ball", "archery")          # 순수 애니메이션 (items 없음)
+    is_vis  = rt in ("shape", "planet", "element", "dice", "clock")  # 비주얼 결과
+    items   = cfg.get("items")
 
     if not is_anim and items and result_item is None:
         result_item = random.choice(items)
 
-    frames_intro  = int(T_INTRO_END                        * FPS)
-    frames_cycle  = int((T_CYCLE_END  - T_INTRO_END)       * FPS)
-    frames_result = int((T_RESULT_END - T_CYCLE_END)       * FPS)
+    frames_intro  = int(T_INTRO_END                  * FPS)
+    frames_cycle  = int((T_CYCLE_END - T_INTRO_END)  * FPS)
+    frames_result = int((T_RESULT_END - T_CYCLE_END) * FPS)
 
     # ── 인트로 ──────────────────────────────────────────────
     if rt == "memory":
@@ -770,6 +1267,15 @@ def generate_frames(cfg: dict, result_item=None, target=None):
             yield make_intro_frame(cfg, i / max(frames_intro - 1, 1))
 
     # ── 사이클 ──────────────────────────────────────────────
+    def _seq_cycle(frame_fn):
+        seq  = build_item_sequence(items, frames_cycle)
+        prev = None
+        for i, item in enumerate(seq):
+            t     = T_INTRO_END + i / FPS
+            flash = 0.4 * (1 - i / frames_cycle * 0.5) if item != prev and i > 0 else 0.0
+            yield frame_fn(cfg, item, t, flash_intensity=flash, target=target)
+            prev  = item
+
     if rt == "gauge":
         for i in range(frames_cycle):
             yield make_gauge_frame(cfg, T_INTRO_END + i / FPS)
@@ -779,28 +1285,29 @@ def generate_frames(cfg: dict, result_item=None, target=None):
     elif rt == "archery":
         for i in range(frames_cycle):
             yield make_archery_frame(cfg, T_INTRO_END + i / FPS)
+    elif rt == "clock":
+        for i in range(frames_cycle):
+            yield make_clock_anim_frame(cfg, T_INTRO_END + i / FPS, target=target)
     elif rt == "color":
-        seq  = build_item_sequence(items, frames_cycle)
-        prev = None
-        for i, item in enumerate(seq):
-            t     = T_INTRO_END + i / FPS
-            flash = 0.4 * (1 - i / frames_cycle * 0.5) if item != prev and i > 0 else 0.0
-            yield make_color_frame(cfg, item, t, flash_intensity=flash, target=target)
-            prev  = item
+        yield from _seq_cycle(make_color_frame)
+    elif rt == "shape":
+        yield from _seq_cycle(make_shape_frame)
+    elif rt == "planet":
+        yield from _seq_cycle(make_planet_frame)
+    elif rt == "element":
+        yield from _seq_cycle(make_element_frame)
+    elif rt == "dice":
+        yield from _seq_cycle(make_dice_frame)
     else:  # standard / memory
-        seq  = build_item_sequence(items, frames_cycle)
-        prev = None
-        for i, item in enumerate(seq):
-            t     = T_INTRO_END + i / FPS
-            flash = 0.4 * (1 - i / frames_cycle * 0.5) if item != prev and i > 0 else 0.0
-            yield make_cycle_frame(cfg, item, t, flash_intensity=flash, target=target)
-            prev  = item
+        yield from _seq_cycle(make_cycle_frame)
 
     # ── 결과 ────────────────────────────────────────────────
     for i in range(frames_result):
         tr = i / max(frames_result - 1, 1)
         if is_anim:
             yield make_anim_result_frame(cfg, rt, tr)
+        elif is_vis:
+            yield make_visual_result_frame(cfg, rt, result_item, tr)
         else:
             yield make_result_frame(cfg, result_item, tr)
 
@@ -843,7 +1350,7 @@ def generate(game_key: str, output_path=None, target=None, result=None, seed=Non
 
     cfg = GAMES[game_key]
     rt  = cfg.get("render_type", "standard")
-    is_anim = rt in ("gauge", "ball", "archery")
+    is_anim = rt in ("gauge", "ball", "archery", "clock")
 
     if not is_anim and cfg.get("items") and result is None:
         result = random.choice(cfg["items"])
