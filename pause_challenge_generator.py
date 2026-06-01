@@ -178,6 +178,95 @@ TRAFFIC_COLORS = {
     "초록불": (40,  200, 80),
 }
 
+# ── 어그로 10개용 상수 ─────────────────────────────────────
+
+# 로또 공 색상 (번호 범위별)
+LOTTO_ITEMS = [str(i) for i in range(1, 46)]
+def _lotto_color(n):
+    n = int(n)
+    if  1 <= n <= 10: return (255, 195, 20)
+    if 11 <= n <= 20: return (50,  155, 255)
+    if 21 <= n <= 30: return (255, 60,  60)
+    if 31 <= n <= 40: return (130, 130, 130)
+    return (60, 195, 60)
+
+# 슬롯 심볼 데이터 (표시텍스트 → 색)
+SLOT_SYMBOLS_DATA = {
+    "7  7  7": (255, 220, 20),
+    "B  A  R": (220, 50,  50),
+    "체   리": (255, 80,  120),
+    "레   몬": (240, 225, 30),
+    "★  벨  ★": (255, 200, 50),
+    "♦ 다이아": (100, 205, 255),
+    "클로버 ♣": (60,  200, 80),
+    "★  행운  ★": (200, 80,  255),
+}
+
+# 원소 데이터
+FIRE_ELEM_DATA = {
+    "불  꽃": {"col": (255, 80,  20),  "glow": (255, 150, 30),  "mode": "fire"},
+    "물  결": {"col": (40,  150, 255), "glow": (80,  200, 255), "mode": "water"},
+    "바  람": {"col": (150, 230, 180), "glow": (180, 255, 200), "mode": "wind"},
+    "대  지": {"col": (160, 110, 50),  "glow": (200, 150, 80),  "mode": "earth"},
+    "번  개": {"col": (255, 240, 30),  "glow": (255, 255, 100), "mode": "lightning"},
+    "얼  음": {"col": (160, 220, 255), "glow": (200, 240, 255), "mode": "ice"},
+}
+
+# 타로 카드
+TAROT_ITEMS = [
+    "광  대", "마법사", "여황제", "황  제",
+    "연  인", "전  차", "힘   ", "은둔자",
+    "운명의 바퀴", "태  양", "달   ", "별   ",
+]
+TAROT_SYMBOLS = {
+    "광  대":  ("☆", (255,220,100)), "마법사": ("∞", (200,100,255)),
+    "여황제":  ("♛", (255,180,200)), "황  제": ("♜", (200,150,80)),
+    "연  인":  ("♥", (255,80,100)),  "전  차": ("⚔", (180,200,255)),
+    "힘   ":   ("♾", (255,180,50)),  "은둔자": ("☾", (180,220,255)),
+    "운명의 바퀴": ("⊕", (255,200,50)), "태  양": ("☀", (255,210,30)),
+    "달   ":   ("☽", (200,215,255)), "별   ": ("★", (180,230,255)),
+}
+
+# 불꽃 색깔
+FIREWORK_DATA = {
+    "황금 불꽃": (255, 210, 30),
+    "빨간 불꽃": (255, 50,  50),
+    "파란 불꽃": (50,  150, 255),
+    "초록 불꽃": (50,  220, 100),
+    "보라 불꽃": (180, 60,  255),
+    "은하 불꽃": (255, 100, 200),
+    "흰  불꽃":  (220, 235, 255),
+}
+
+# 레이싱 번호 & 색
+RACE_ITEMS  = ["1번", "2번", "3번", "4번", "5번", "6번", "7번", "8번"]
+RACE_COLORS_LIST = [
+    (255,50,50),(50,150,255),(50,220,80),(255,210,30),
+    (255,100,200),(100,220,220),(255,140,30),(180,80,255),
+]
+
+# 네온사인 단어 & 색
+NEON_ITEMS = ["LOVE", "LUCKY", "COOL", "HOT",
+              "WIN", "BOOM", "WOW", "GO!",
+              "FIRE", "YES!"]
+NEON_COLORS_LIST = [
+    (255,50,80),(255,180,0),(50,200,255),(255,80,50),
+    (80,255,80),(255,80,200),(80,200,255),(255,220,30),
+    (255,100,30),(100,255,100),
+]
+
+# 폭탄 카운트다운
+BOMB_ITEMS = [f"{i}초" for i in range(1, 11)]
+
+# 은하 타입
+GALAXY_TYPES_DATA = {
+    "나선 은하":   "spiral",
+    "타원 은하":   "elliptical",
+    "막대나선 은하": "barred",
+    "불규칙 은하": "irregular",
+    "렌즈형 은하": "lenticular",
+}
+
 # ============================================================
 # 게임 설정 (render_type: standard | gauge | color | ball | archery | memory)
 # ============================================================
@@ -672,6 +761,128 @@ GAMES = {
         "accent": (120, 170, 255),     "glow_color":  (100, 155, 255),
         "has_target": True, "target_label": "목표 국기",
         "render_type": "image_cycle", "draw_key": "flag_img",
+    },
+
+    # ── 어그로 10개 ──────────────────────────────────────────
+    "lotto": {
+        "name": "로또 번호 뽑기",
+        "title_line1": "로또 번호를", "title_line2": "잡아라!",
+        "subtitle": "목표 번호에서 화면을 멈추세요",
+        "items": LOTTO_ITEMS,
+        "item_font_size": 280,
+        "bg_dark": (8, 4, 28), "bg_light": (22, 10, 60),
+        "item_color": (255, 220, 30), "shadow_color": (140, 110, 0),
+        "accent": (255, 180, 0),      "glow_color":  (255, 210, 50),
+        "has_target": True, "target_label": "목표 번호",
+        "render_type": "image_cycle", "draw_key": "lotto",
+    },
+    "slot": {
+        "name": "슬롯머신",
+        "title_line1": "슬롯머신을", "title_line2": "멈춰라!",
+        "subtitle": "목표 심볼에서 화면을 멈추세요",
+        "items": list(SLOT_SYMBOLS_DATA.keys()),
+        "item_font_size": 120,
+        "bg_dark": (35, 5, 5), "bg_light": (70, 10, 10),
+        "item_color": (255, 220, 30), "shadow_color": (140, 80, 0),
+        "accent": (255, 200, 0),      "glow_color":  (255, 180, 0),
+        "has_target": True, "target_label": "목표 심볼",
+        "render_type": "image_cycle", "draw_key": "slot",
+    },
+    "fire_elem": {
+        "name": "원소 대결",
+        "title_line1": "원소를", "title_line2": "선택하라!",
+        "subtitle": "목표 원소에서 화면을 멈추세요",
+        "items": list(FIRE_ELEM_DATA.keys()),
+        "item_font_size": 130,
+        "bg_dark": (5, 3, 18), "bg_light": (12, 8, 38),
+        "item_color": (255, 255, 255), "shadow_color": (0, 0, 0),
+        "accent": (255, 120, 30),      "glow_color":  (255, 100, 0),
+        "has_target": True, "target_label": "목표 원소",
+        "render_type": "image_cycle", "draw_key": "fire_elem",
+    },
+    "roulette": {
+        "name": "룰렛",
+        "title_line1": "룰렛을", "title_line2": "멈춰라!",
+        "subtitle": "RED에서 화면을 멈추세요",
+        "items": None,
+        "item_font_size": 150,
+        "bg_dark": (3, 28, 8), "bg_light": (6, 55, 16),
+        "item_color": (255, 220, 30), "shadow_color": (100, 80, 0),
+        "accent": (255, 210, 0),      "glow_color":  (255, 200, 0),
+        "has_target": False, "target_label": None,
+        "render_type": "roulette",
+    },
+    "tarot": {
+        "name": "타로 카드 뽑기",
+        "title_line1": "타로 카드를", "title_line2": "뽑아라!",
+        "subtitle": "멈추면 당신의 운명이 결정!",
+        "items": TAROT_ITEMS,
+        "item_font_size": 110,
+        "bg_dark": (10, 4, 30), "bg_light": (22, 8, 60),
+        "item_color": (220, 190, 255), "shadow_color": (80, 40, 140),
+        "accent": (200, 140, 255),     "glow_color":  (180, 100, 255),
+        "has_target": False, "target_label": None,
+        "render_type": "image_cycle", "draw_key": "tarot",
+    },
+    "firework": {
+        "name": "불꽃 색깔 맞추기",
+        "title_line1": "불꽃 색깔을", "title_line2": "맞춰라!",
+        "subtitle": "목표 불꽃에서 화면을 멈추세요",
+        "items": list(FIREWORK_DATA.keys()),
+        "item_font_size": 110,
+        "bg_dark": (2, 2, 5), "bg_light": (5, 5, 12),
+        "item_color": (255, 255, 200), "shadow_color": (80, 80, 20),
+        "accent": (255, 200, 50),      "glow_color":  (255, 220, 80),
+        "has_target": True, "target_label": "목표 불꽃",
+        "render_type": "image_cycle", "draw_key": "firework",
+    },
+    "race": {
+        "name": "레이싱 번호 맞추기",
+        "title_line1": "레이싱", "title_line2": "번호 맞추기!",
+        "subtitle": "목표 번호에서 화면을 멈추세요",
+        "items": RACE_ITEMS,
+        "item_font_size": 180,
+        "bg_dark": (5, 5, 8), "bg_light": (12, 12, 18),
+        "item_color": (255, 255, 255), "shadow_color": (0, 0, 0),
+        "accent": (255, 60,  30),      "glow_color":  (255, 80, 40),
+        "has_target": True, "target_label": "목표 번호",
+        "render_type": "image_cycle", "draw_key": "race",
+    },
+    "neon_sign": {
+        "name": "네온사인 맞추기",
+        "title_line1": "네온사인을", "title_line2": "멈춰라!",
+        "subtitle": "목표 단어에서 화면을 멈추세요",
+        "items": NEON_ITEMS,
+        "item_font_size": 220,
+        "bg_dark": (2, 2, 5), "bg_light": (5, 5, 12),
+        "item_color": (255, 255, 255), "shadow_color": (0, 0, 0),
+        "accent": (255, 50,  150),     "glow_color":  (255, 30, 120),
+        "has_target": True, "target_label": "목표 단어",
+        "render_type": "image_cycle", "draw_key": "neon_sign",
+    },
+    "bomb": {
+        "name": "폭탄 카운트다운",
+        "title_line1": "폭탄이", "title_line2": "터진다!",
+        "subtitle": "목표 초에서 화면을 멈추세요",
+        "items": BOMB_ITEMS,
+        "item_font_size": 200,
+        "bg_dark": (25, 4, 4), "bg_light": (55, 8, 8),
+        "item_color": (255, 80,  50), "shadow_color": (120, 20, 10),
+        "accent": (255, 60,  0),      "glow_color":  (255, 80,  0),
+        "has_target": True, "target_label": "목표 초",
+        "render_type": "image_cycle", "draw_key": "bomb",
+    },
+    "galaxy": {
+        "name": "은하 맞추기",
+        "title_line1": "은하를", "title_line2": "맞춰라!",
+        "subtitle": "목표 은하에서 화면을 멈추세요",
+        "items": list(GALAXY_TYPES_DATA.keys()),
+        "item_font_size": 100,
+        "bg_dark": (2, 2, 8), "bg_light": (5, 5, 18),
+        "item_color": (200, 210, 255), "shadow_color": (40, 50, 130),
+        "accent": (150, 170, 255),     "glow_color":  (130, 150, 255),
+        "has_target": True, "target_label": "목표 은하",
+        "render_type": "image_cycle", "draw_key": "galaxy",
     },
 }
 
@@ -1408,9 +1619,10 @@ def make_anim_result_frame(cfg: dict, render_type: str, t_ratio: float) -> Image
     draw_particles(ImageDraw.Draw(img, "RGBA"), t_ratio * 5, cfg["accent"], count=30)
     draw_header(img, cfg)
     msgs = {
-        "gauge":   ("PERFECT!", (40, 220, 80)),
-        "ball":    ("도전 성공!", (255, 215, 0)),
-        "archery": ("10점!!",   (255, 215, 0)),
+        "gauge":    ("PERFECT!", (40, 220, 80)),
+        "ball":     ("도전 성공!", (255, 215, 0)),
+        "archery":  ("10점!!",   (255, 215, 0)),
+        "roulette": ("RED!",     (220, 50, 50)),
     }
     msg, col = msgs.get(render_type, ("완료!", (255, 255, 255)))
     fs  = int(200 * (0.7 + 0.3 * eased))
@@ -1814,6 +2026,8 @@ def draw_image_item(draw_key, img, item, cx, cy, size):
         _draw_season_img(img, item, cx, cy, size)
     elif draw_key == "flag_img":
         _draw_flag_img_draw(img, item, cx, cy, size)
+    elif draw_key in _AGGRO_DRAW_MAP:
+        _AGGRO_DRAW_MAP[draw_key](img, item, cx, cy, size)
 
 def draw_image_header(img, cfg, target, draw_key):
     """헤더에 목표 미니 이미지를 그려 target을 시각적으로 보여준다."""
@@ -1843,7 +2057,10 @@ def draw_image_header(img, cfg, target, draw_key):
 def make_image_cycle_frame(cfg, item, t, flash_intensity=0.0, target=None):
     draw_key = cfg.get("draw_key", "")
     img  = make_bg(cfg, t)
-    draw_particles(ImageDraw.Draw(img, "RGBA"), t, cfg["accent"])
+    draw_particles(ImageDraw.Draw(img, "RGBA"), t, cfg["accent"], count=24)
+    # 어그로 게임들은 빛줄기 추가
+    if draw_key in _AGGRO_DRAW_MAP:
+        _draw_ray_burst(img, WIDTH//2, HEIGHT//2-60, cfg["accent"], t, alpha_max=30)
     draw_image_header(img, cfg, target, draw_key)
     cx, cy = WIDTH // 2, HEIGHT // 2 - 60
     draw_image_item(draw_key, img, item, cx, cy, 400)
@@ -1854,6 +2071,385 @@ def make_image_cycle_frame(cfg, item, t, flash_intensity=0.0, target=None):
     progress = (t - T_INTRO_END) / (T_CYCLE_END - T_INTRO_END)
     draw_bottom(img, cfg, progress)
     return apply_flash(img, flash_intensity)
+
+# ── 어그로 이미지 드로어 ──────────────────────────────────
+
+def _draw_ray_burst(img, cx, cy, col, t, n=16, length=700, alpha_max=40):
+    """중앙에서 빛줄기 방산 — 배경에 화려함을 더해준다."""
+    gl = Image.new("RGBA", (img.width, img.height), (0, 0, 0, 0))
+    gd = ImageDraw.Draw(gl)
+    for i in range(n):
+        angle = math.radians(360 * i / n + t * 18)
+        a = int(alpha_max * (0.6 + 0.4 * math.sin(t * 3 + i)))
+        x2 = cx + int(length * math.cos(angle))
+        y2 = cy + int(length * math.sin(angle))
+        gd.line([(cx, cy), (x2, y2)], fill=(*col, a), width=12)
+    blurred = gl.filter(ImageFilter.GaussianBlur(8))
+    img.paste(blurred, (0, 0), blurred)
+
+def _draw_lotto_ball_img(img, item, cx, cy, size):
+    col = _lotto_color(item)
+    draw = ImageDraw.Draw(img, "RGBA")
+    r = int(size * 0.42)
+    # 글로우
+    gl = Image.new("RGBA", (img.width, img.height), (0, 0, 0, 0))
+    gd = ImageDraw.Draw(gl)
+    gd.ellipse([cx-r*2, cy-r*2, cx+r*2, cy+r*2], fill=(*col, 45))
+    img.paste(gl.filter(ImageFilter.GaussianBlur(28)), (0, 0), gl.filter(ImageFilter.GaussianBlur(28)))
+    # 공 본체
+    draw.ellipse([cx-r, cy-r, cx+r, cy+r], fill=col, outline=(255,255,255,60), width=5)
+    # 하이라이트
+    hr = int(r * 0.38)
+    draw.ellipse([cx-hr, cy-r+int(r*0.12), cx+int(hr*0.3), cy-r+int(r*0.12)+int(hr*0.55)],
+                 fill=(255, 255, 255, 90))
+    # 번호
+    nf = get_font(int(r * 1.0))
+    bb = nf.getbbox(item)
+    draw.text((cx-(bb[2]-bb[0])//2, cy-(bb[3]-bb[1])//2),
+              item, font=nf, fill=(20, 20, 20))
+
+def _draw_slot_sym_img(img, item, cx, cy, size):
+    col = SLOT_SYMBOLS_DATA.get(item, (255, 220, 30))
+    draw = ImageDraw.Draw(img, "RGBA")
+    sw, sh = int(size * 1.1), int(size * 0.72)
+    x1, y1 = cx-sw//2, cy-sh//2
+    x2, y2 = cx+sw//2, cy+sh//2
+    # 슬롯 릴 배경
+    draw.rounded_rectangle([x1-6, y1-6, x2+6, y2+6], radius=18,
+                            fill=(60,40,10), outline=(255,200,0,200), width=5)
+    draw.rounded_rectangle([x1, y1, x2, y2], radius=14,
+                            fill=(245,235,210), outline=(200,170,80,180), width=4)
+    # 심볼 텍스트
+    sf = get_font(int(size * 0.45))
+    bb = sf.getbbox(item)
+    draw.text((cx-(bb[2]-bb[0])//2, cy-(bb[3]-bb[1])//2), item, font=sf, fill=col)
+    # 심볼 글로우
+    gl = Image.new("RGBA", (img.width, img.height), (0, 0, 0, 0))
+    gd = ImageDraw.Draw(gl)
+    gd.text((cx-(bb[2]-bb[0])//2, cy-(bb[3]-bb[1])//2), item, font=sf, fill=(*col, 160))
+    img.paste(gl.filter(ImageFilter.GaussianBlur(14)), (0, 0), gl.filter(ImageFilter.GaussianBlur(14)))
+
+def _draw_fire_elem_img(img, item, cx, cy, size):
+    ed = FIRE_ELEM_DATA.get(item, list(FIRE_ELEM_DATA.values())[0])
+    col, glow_col, mode = ed["col"], ed["glow"], ed["mode"]
+    draw = ImageDraw.Draw(img, "RGBA")
+    r = int(size * 0.38)
+    # 글로우 후광
+    gl = Image.new("RGBA", (img.width, img.height), (0,0,0,0))
+    gd = ImageDraw.Draw(gl)
+    gd.ellipse([cx-r*2, cy-r*2, cx+r*2, cy+r*2], fill=(*glow_col, 50))
+    img.paste(gl.filter(ImageFilter.GaussianBlur(35)), (0,0), gl.filter(ImageFilter.GaussianBlur(35)))
+    draw2 = ImageDraw.Draw(img, "RGBA")
+    if mode == "fire":
+        for i in range(5):
+            a = math.radians(-90 + i * 22 - 44)
+            fx = cx + int(r*0.3*math.cos(a))
+            fw = int(r * (0.9 - i*0.12))
+            fh = int(r * (1.4 - i*0.18))
+            shade = tuple(max(0,c-i*20) for c in col)
+            draw2.ellipse([fx-fw//2, cy-r+i*int(r*0.22), fx+fw//2, cy+fh-i*int(r*0.1)], fill=shade)
+        draw2.ellipse([cx-int(r*0.3), cy-int(r*0.5), cx+int(r*0.3), cy+int(r*0.5)],
+                      fill=(255,240,180))
+    elif mode == "water":
+        for i in range(3):
+            wy = cy - int(r*0.3) + i*int(r*0.45)
+            draw2.arc([cx-r, wy-int(r*0.4), cx+r, wy+int(r*0.4)],
+                      start=0, end=180, fill=col, width=int(r*0.22))
+    elif mode == "wind":
+        for i in range(4):
+            a = math.radians(i * 35)
+            draw2.arc([cx-r+int(r*0.2*i), cy-r+int(r*0.15*i),
+                       cx+r-int(r*0.1*i), cy+int(r*0.4*i)],
+                      start=int(a*57), end=int(a*57)+160, fill=col, width=int(r*0.18))
+    elif mode == "earth":
+        draw2.polygon([(cx, cy-r),(cx-r,cy+r),(cx+r,cy+r)], fill=col, outline=(255,255,255,60))
+        draw2.ellipse([cx-int(r*0.4), cy, cx+int(r*0.4), cy+int(r*0.7)], fill=(80,160,60))
+    elif mode == "lightning":
+        pts = [(cx+20,cy-r),(cx-30,cy-int(r*0.1)),(cx+20,cy-int(r*0.1)),
+               (cx-30,cy+r)]
+        draw2.line(pts, fill=col, width=int(r*0.28))
+        draw2.line(pts, fill=(255,255,255,120), width=int(r*0.10))
+    elif mode == "ice":
+        for a in range(0, 360, 60):
+            rad = math.radians(a)
+            draw2.line([(cx,cy),(cx+int(r*math.cos(rad)), cy+int(r*math.sin(rad)))],
+                       fill=col, width=int(r*0.22))
+        draw2.ellipse([cx-int(r*0.22),cy-int(r*0.22),cx+int(r*0.22),cy+int(r*0.22)],
+                      fill=(220,240,255))
+
+def _draw_tarot_img(img, item, cx, cy, size):
+    draw = ImageDraw.Draw(img, "RGBA")
+    cw, ch = int(size * 0.72), int(size * 1.12)
+    x1, y1 = cx-cw//2, cy-ch//2
+    x2, y2 = cx+cw//2, cy+ch//2
+    # 카드 배경
+    draw.rounded_rectangle([x1, y1, x2, y2], radius=20,
+                            fill=(15,10,38), outline=(180,140,255,200), width=5)
+    # 상단 별장식
+    draw.line([(x1+12,y1+12),(x2-12,y1+12)], fill=(180,140,255,150), width=2)
+    draw.line([(x1+12,y2-12),(x2-12,y2-12)], fill=(180,140,255,150), width=2)
+    # 메인 심볼
+    sym, sym_col = TAROT_SYMBOLS.get(item, ("?", (200,200,200)))
+    sf = get_font(int(size * 0.52))
+    bb = sf.getbbox(sym)
+    # 심볼 글로우
+    gl = Image.new("RGBA", (img.width, img.height), (0,0,0,0))
+    gd = ImageDraw.Draw(gl)
+    gd.text((cx-(bb[2]-bb[0])//2, cy-ch//4-(bb[3]-bb[1])//2), sym, font=sf, fill=(*sym_col,180))
+    img.paste(gl.filter(ImageFilter.GaussianBlur(16)), (0,0), gl.filter(ImageFilter.GaussianBlur(16)))
+    draw.text((cx-(bb[2]-bb[0])//2, cy-ch//4-(bb[3]-bb[1])//2), sym, font=sf, fill=sym_col)
+    # 카드 이름
+    nf = get_font(int(size * 0.18))
+    nb = nf.getbbox(item)
+    draw.text((cx-(nb[2]-nb[0])//2, y2-50), item, font=nf, fill=(220,200,255))
+
+def _draw_firework_img(img, item, cx, cy, size, t_seed=0):
+    col = FIREWORK_DATA.get(item, (255, 220, 30))
+    draw = ImageDraw.Draw(img, "RGBA")
+    rng  = random.Random(int(t_seed * 15 + hash(item) % 100))
+    n_arms = rng.randint(12, 18)
+    # 외부 빛줄기
+    gl = Image.new("RGBA", (img.width, img.height), (0, 0, 0, 0))
+    gd = ImageDraw.Draw(gl)
+    for i in range(n_arms):
+        angle = math.radians(360 * i / n_arms + rng.uniform(0, 20))
+        arm_len = int(size * rng.uniform(0.35, 0.55))
+        tail_len = int(arm_len * 0.55)
+        ex = cx + int(arm_len * math.cos(angle))
+        ey = cy + int(arm_len * math.sin(angle))
+        gd.line([(cx, cy), (ex, ey)], fill=(*col, 200), width=5)
+        # 꼬리 스파크
+        gd.line([(ex, ey), (ex + int(tail_len*0.5*math.cos(angle+0.4)),
+                             ey + int(tail_len*0.5*math.sin(angle+0.4)))],
+                fill=(*col, 100), width=3)
+    img.paste(gl.filter(ImageFilter.GaussianBlur(10)), (0, 0), gl.filter(ImageFilter.GaussianBlur(10)))
+    # 중심 핵
+    draw2 = ImageDraw.Draw(img, "RGBA")
+    core_r = int(size * 0.09)
+    draw2.ellipse([cx-core_r, cy-core_r, cx+core_r, cy+core_r], fill=(255,255,255))
+    draw2.ellipse([cx-int(core_r*0.55), cy-int(core_r*0.55),
+                   cx+int(core_r*0.55), cy+int(core_r*0.55)], fill=col)
+
+def _draw_race_img(img, item, cx, cy, size):
+    idx   = RACE_ITEMS.index(item) if item in RACE_ITEMS else 0
+    col   = RACE_COLORS_LIST[idx % len(RACE_COLORS_LIST)]
+    draw  = ImageDraw.Draw(img, "RGBA")
+    bw, bh = int(size * 1.2), int(size * 0.55)
+    x1, y1 = cx-bw//2, cy-bh//2
+    x2, y2 = cx+bw//2, cy+bh//2
+    # 차체
+    draw.rounded_rectangle([x1, y1+int(bh*0.3), x2, y2], radius=int(bh*0.22), fill=col,
+                            outline=(255,255,255,120), width=5)
+    # 캐빈 (위 돔)
+    draw.rounded_rectangle([x1+int(bw*0.25), y1, x2-int(bw*0.2), y1+int(bh*0.55)],
+                            radius=int(bh*0.18), fill=tuple(min(255,c+40) for c in col))
+    # 바퀴 4개
+    wr = int(bh * 0.26)
+    for wx, wy in [(x1+int(bw*0.2), y2-int(wr*0.3)),
+                   (x2-int(bw*0.2), y2-int(wr*0.3))]:
+        draw.ellipse([wx-wr,wy-wr,wx+wr,wy+wr], fill=(20,20,20), outline=(80,80,80), width=4)
+        draw.ellipse([wx-int(wr*0.5),wy-int(wr*0.5),wx+int(wr*0.5),wy+int(wr*0.5)],
+                     fill=(160,160,160))
+    # 번호판
+    nf = get_font(int(bh * 0.58))
+    bb = nf.getbbox(item)
+    draw.text((cx-(bb[2]-bb[0])//2, cy+int(bh*0.08)-(bb[3]-bb[1])//2),
+              item, font=nf, fill=(255,255,255))
+
+def _draw_neon_sign_img(img, item, cx, cy, size):
+    idx = NEON_ITEMS.index(item) if item in NEON_ITEMS else 0
+    col = NEON_COLORS_LIST[idx % len(NEON_COLORS_LIST)]
+    # 극강 글로우 레이어
+    for radius, alpha in [(50, 25), (30, 45), (18, 75), (8, 130)]:
+        gl = Image.new("RGBA", (img.width, img.height), (0, 0, 0, 0))
+        gd = ImageDraw.Draw(gl)
+        nf = get_font(int(size * 0.65))
+        bb = nf.getbbox(item)
+        gd.text((cx-(bb[2]-bb[0])//2, cy-(bb[3]-bb[1])//2), item, font=nf, fill=(*col, alpha))
+        img.paste(gl.filter(ImageFilter.GaussianBlur(radius)), (0,0),
+                  gl.filter(ImageFilter.GaussianBlur(radius)))
+    # 본 텍스트
+    draw = ImageDraw.Draw(img, "RGBA")
+    nf   = get_font(int(size * 0.65))
+    bb   = nf.getbbox(item)
+    draw.text((cx-(bb[2]-bb[0])//2, cy-(bb[3]-bb[1])//2), item, font=nf, fill=(255,255,255))
+
+def _draw_bomb_img(img, item, cx, cy, size):
+    draw = ImageDraw.Draw(img, "RGBA")
+    r    = int(size * 0.38)
+    # 폭탄 몸체
+    draw.ellipse([cx-r, cy-int(r*0.15), cx+r, cy+r+int(r*0.15)],
+                 fill=(25,25,25), outline=(80,80,80), width=6)
+    # 도화선
+    fuse_pts = [(cx+int(r*0.35), cy-int(r*0.05)),
+                (cx+int(r*0.55), cy-int(r*0.35)),
+                (cx+int(r*0.3),  cy-int(r*0.65)),
+                (cx+int(r*0.5),  cy-r)]
+    draw.line(fuse_pts, fill=(160,120,50), width=7)
+    # 불꽃 (도화선 끝)
+    fx, fy = fuse_pts[-1]
+    for _ in range(8):
+        rng2 = random.Random(int(size + hash(item) % 50))
+        ax = fx + rng2.randint(-18, 18)
+        ay = fy + rng2.randint(-18, 0)
+        draw.ellipse([ax-8,ay-8,ax+8,ay+8], fill=(255, rng2.randint(80,200), 20, 200))
+    # 카운트다운 숫자
+    try: n = int(item.replace("초",""))
+    except: n = 5
+    nf  = get_font(int(r * 1.0))
+    bb  = nf.getbbox(str(n))
+    col = (255,80,30) if n <= 3 else (255,180,30)
+    draw.text((cx-(bb[2]-bb[0])//2, cy+int(r*0.22)-(bb[3]-bb[1])//2),
+              str(n), font=nf, fill=col)
+    # 경고 글로우
+    if n <= 3:
+        gl = Image.new("RGBA", (img.width, img.height), (0,0,0,0))
+        gd = ImageDraw.Draw(gl)
+        gd.ellipse([cx-r*2, cy-r*2, cx+r*2, cy+r*2], fill=(255,30,0,35))
+        img.paste(gl.filter(ImageFilter.GaussianBlur(32)), (0,0), gl.filter(ImageFilter.GaussianBlur(32)))
+
+def _draw_galaxy_img(img, item, cx, cy, size):
+    draw  = ImageDraw.Draw(img, "RGBA")
+    mode  = GALAXY_TYPES_DATA.get(item, "spiral")
+    r     = int(size * 0.42)
+    rng   = random.Random(hash(item) % 999)
+    base_col  = (180, 200, 255)
+    core_col  = (255, 240, 200)
+    if mode == "spiral":
+        # 나선팔 2개
+        for arm in range(2):
+            for i in range(80):
+                p = i / 80
+                angle = math.radians(arm * 180 + p * 540)
+                dist  = int(r * p * 0.92)
+                px = cx + int(dist * math.cos(angle))
+                py = cy + int(dist * math.sin(angle) * 0.45)
+                alpha = int(180 * (1 - p * 0.6))
+                sr = max(2, int(r * 0.08 * (1 - p * 0.7)))
+                draw.ellipse([px-sr,py-sr,px+sr,py+sr], fill=(*base_col, alpha))
+        # 중심 코어
+        draw.ellipse([cx-int(r*0.22),cy-int(r*0.1),cx+int(r*0.22),cy+int(r*0.1)],
+                     fill=(*core_col, 220))
+    elif mode == "elliptical":
+        for i in range(200):
+            a  = rng.uniform(0, 2*math.pi)
+            d  = rng.gauss(0, r*0.38)
+            px = cx + int(d * math.cos(a))
+            py = cy + int(d * math.sin(a) * 0.5)
+            draw.ellipse([px-3,py-3,px+3,py+3], fill=(*base_col, rng.randint(60,180)))
+        draw.ellipse([cx-int(r*0.18),cy-int(r*0.09),cx+int(r*0.18),cy+int(r*0.09)],
+                     fill=(*core_col, 230))
+    elif mode == "barred":
+        # 막대
+        draw.rounded_rectangle([cx-int(r*0.55), cy-int(r*0.1),
+                                 cx+int(r*0.55), cy+int(r*0.1)],
+                                radius=int(r*0.08), fill=(*core_col, 200))
+        # 막대 끝에서 팔
+        for arm in range(2):
+            sx = cx + int(r * 0.55) * (1 if arm==0 else -1)
+            for i in range(50):
+                p = i / 50
+                direction = 1 if arm == 0 else -1
+                angle = math.radians(p * 200 * direction)
+                dist  = int(r * p * 0.8)
+                px = sx + int(dist * math.cos(angle))
+                py = cy  + int(dist * math.sin(angle) * 0.5)
+                sr = max(2, int(r * 0.07 * (1-p*0.6)))
+                draw.ellipse([px-sr,py-sr,px+sr,py+sr], fill=(*base_col, int(160*(1-p*0.5))))
+    elif mode == "irregular":
+        for i in range(180):
+            px = cx + rng.randint(-r, r)
+            py = cy + rng.randint(-int(r*0.6), int(r*0.6))
+            sr = rng.randint(2, 8)
+            clump_col = (rng.randint(150,255), rng.randint(150,220), rng.randint(200,255))
+            draw.ellipse([px-sr,py-sr,px+sr,py+sr], fill=(*clump_col, rng.randint(80,180)))
+    elif mode == "lenticular":
+        # 렌즈형: 볼록 원반
+        for i in range(150):
+            a  = rng.uniform(0, 2*math.pi)
+            d  = rng.gauss(0, r*0.42)
+            px = cx + int(d * math.cos(a))
+            py = cy + int(d * math.sin(a) * 0.3)
+            sr = max(1, int(r * 0.05))
+            draw.ellipse([px-sr,py-sr,px+sr,py+sr], fill=(*base_col, rng.randint(80,160)))
+        draw.ellipse([cx-int(r*0.2), cy-int(r*0.07),
+                      cx+int(r*0.2), cy+int(r*0.07)], fill=(*core_col, 220))
+    # 별 가루
+    for _ in range(30):
+        sx = cx + rng.randint(-r, r)
+        sy = cy + rng.randint(-int(r*0.65), int(r*0.65))
+        draw.ellipse([sx-2,sy-2,sx+2,sy+2], fill=(255,255,255,rng.randint(100,220)))
+
+# ── 어그로 draw_image_item 디스패처 확장 ────────────────────
+_AGGRO_DRAW_MAP = {
+    "lotto":     _draw_lotto_ball_img,
+    "slot":      _draw_slot_sym_img,
+    "fire_elem": _draw_fire_elem_img,
+    "tarot":     _draw_tarot_img,
+    "firework":  _draw_firework_img,
+    "race":      _draw_race_img,
+    "neon_sign": _draw_neon_sign_img,
+    "bomb":      _draw_bomb_img,
+    "galaxy":    _draw_galaxy_img,
+}
+
+# ── 룰렛 순수 애니메이션 프레임 ─────────────────────────────
+def make_roulette_frame(cfg, t):
+    img  = make_bg(cfg, t)
+    draw = ImageDraw.Draw(img, "RGBA")
+    draw_header(img, cfg)
+    _draw_ray_burst(img, WIDTH//2, HEIGHT//2-60, cfg["accent"], t, n=18, alpha_max=35)
+
+    cx, cy = WIDTH // 2, HEIGHT // 2 - 60
+    R  = 340
+    cycle_ratio  = (t - T_INTRO_END) / (T_CYCLE_END - T_INTRO_END)
+    speed        = 3.0 + cycle_ratio * 6.0
+    wheel_angle  = t * speed * 2 * math.pi
+
+    # 0~36 번호 칸 (0=초록, 홀=빨강, 짝=검정)
+    n_slots = 37
+    ROUL_RED   = {1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36}
+    for i in range(n_slots):
+        a1 = wheel_angle + 2*math.pi*i/n_slots
+        a2 = wheel_angle + 2*math.pi*(i+1)/n_slots
+        col = (30,140,30) if i==0 else ((180,30,30) if i in ROUL_RED else (20,20,20))
+        draw.pieslice([cx-R, cy-R, cx+R, cy+R],
+                      start=math.degrees(a1), end=math.degrees(a2),
+                      fill=col, outline=(255,255,255,80), width=2)
+        # 숫자
+        mid_a = (a1+a2)/2
+        tx = cx + int((R-40)*math.cos(mid_a))
+        ty = cy + int((R-40)*math.sin(mid_a))
+        nf = get_font(26, bold=False)
+        bb = nf.getbbox(str(i))
+        draw.text((tx-(bb[2]-bb[0])//2, ty-(bb[3]-bb[1])//2), str(i),
+                  font=nf, fill=(255,255,255,220))
+
+    # 가장자리 링
+    draw.ellipse([cx-R, cy-R, cx+R, cy+R], outline=(255,215,0), width=8)
+    # 내부 장식 링
+    draw.ellipse([cx-int(R*0.2), cy-int(R*0.2), cx+int(R*0.2), cy+int(R*0.2)],
+                 fill=(180,140,60), outline=(255,215,0), width=5)
+
+    # 볼 (회전과 역방향)
+    ball_angle = -wheel_angle * 1.6 + t * 0.8
+    ball_r_pos = int(R * 0.88)
+    bx = cx + int(ball_r_pos * math.cos(ball_angle))
+    by = cy + int(ball_r_pos * math.sin(ball_angle))
+    draw.ellipse([bx-14, by-14, bx+14, by+14], fill=(240,240,240),
+                 outline=(200,200,200), width=2)
+
+    # 현재 칸 레이블
+    cur_slot = int((-ball_angle / (2*math.pi) * n_slots) % n_slots)
+    is_red   = cur_slot in ROUL_RED
+    is_green = cur_slot == 0
+    zone_col = (30,180,30) if is_green else ((220,50,50) if is_red else (200,200,200))
+    zone_lbl = "0 GREEN" if is_green else (f"{cur_slot} RED" if is_red else f"{cur_slot} BLACK")
+    draw_centered_text(img, zone_lbl, HEIGHT//2+290, get_font(110), zone_col, glow=zone_col)
+
+    progress = (t - T_INTRO_END) / (T_CYCLE_END - T_INTRO_END)
+    draw_bottom(img, cfg, progress)
+    return img
 
 def make_image_result_frame(cfg, result, t_ratio):
     draw_key = cfg.get("draw_key", "")
@@ -1892,7 +2488,7 @@ def build_item_sequence(items: list, total_frames: int) -> list:
 # ============================================================
 def generate_frames(cfg: dict, result_item=None, target=None):
     rt      = cfg.get("render_type", "standard")
-    is_anim = rt in ("gauge", "ball", "archery")          # 순수 애니메이션 (items 없음)
+    is_anim = rt in ("gauge", "ball", "archery", "roulette")  # 순수 애니메이션 (items 없음)
     is_vis  = rt in ("shape", "planet", "element", "dice", "clock")  # 비주얼 결과
     is_img  = rt == "image_cycle"
     items   = cfg.get("items")
@@ -1923,7 +2519,10 @@ def generate_frames(cfg: dict, result_item=None, target=None):
             yield frame_fn(cfg, item, t, flash_intensity=flash, target=target)
             prev  = item
 
-    if rt == "gauge":
+    if rt == "roulette":
+        for i in range(frames_cycle):
+            yield make_roulette_frame(cfg, T_INTRO_END + i / FPS)
+    elif rt == "gauge":
         for i in range(frames_cycle):
             yield make_gauge_frame(cfg, T_INTRO_END + i / FPS)
     elif rt == "ball":
@@ -2001,7 +2600,7 @@ def generate(game_key: str, output_path=None, target=None, result=None, seed=Non
 
     cfg = GAMES[game_key]
     rt  = cfg.get("render_type", "standard")
-    is_anim = rt in ("gauge", "ball", "archery", "clock")
+    is_anim = rt in ("gauge", "ball", "archery", "clock", "roulette")
 
     if not is_anim and cfg.get("items") and result is None:
         result = random.choice(cfg["items"])
