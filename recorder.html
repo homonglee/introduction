@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>대화 비중 분석기</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --border: #30363d;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --accent: #58a6ff;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    html, body { height: 100%; background: var(--bg); color: var(--text); font-family: -apple-system, "Pretendard", system-ui, sans-serif; }
+
+    body { display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 16px; }
+
+    h1 { font-size: 20px; font-weight: 700; margin: 12px 0 4px; }
+    .subtitle { color: var(--muted); font-size: 13px; margin-bottom: 20px; }
+
+    /* Speaker buttons */
+    .speakers { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; max-width: 480px; }
+    .speaker-btn {
+      position: relative;
+      border: 2px solid var(--border);
+      border-radius: 20px;
+      background: var(--surface);
+      padding: 20px 12px 16px;
+      cursor: pointer;
+      transition: border-color .15s, background .15s;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+    }
+    .speaker-btn.active {
+      border-color: var(--color);
+      background: color-mix(in srgb, var(--color) 12%, var(--surface));
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--color) 25%, transparent);
+    }
+    .speaker-btn .indicator {
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      background: var(--color);
+      margin: 0 auto 10px;
+      transition: transform .1s;
+    }
+    .speaker-btn.active .indicator {
+      transform: scale(1.4);
+      box-shadow: 0 0 8px var(--color);
+    }
+    .speaker-name-wrap { display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .speaker-name {
+      font-size: 15px; font-weight: 600;
+      border: none; background: transparent; color: var(--text);
+      text-align: center; width: 80px;
+      outline: none; cursor: text;
+    }
+    .speaker-name:focus { border-bottom: 1px solid var(--accent); }
+    .speaker-time { font-size: 22px; font-weight: 700; margin: 8px 0 4px; font-variant-numeric: tabular-nums; }
+    .speaker-pct { font-size: 13px; color: var(--muted); }
+    .pulse-ring {
+      position: absolute; top: 10px; right: 10px;
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: var(--color);
+      opacity: 0;
+    }
+    .speaker-btn.active .pulse-ring {
+      animation: pulse 1.2s ease-out infinite;
+    }
+    @keyframes pulse {
+      0%   { opacity: .8; transform: scale(1); }
+      100% { opacity: 0;  transform: scale(2.5); }
+    }
+
+    /* Add speaker */
+    .add-wrap { width: 100%; max-width: 480px; margin-top: 6px; }
+    .add-btn {
+      width: 100%; padding: 10px; border-radius: 12px;
+      border: 1px dashed var(--border); background: transparent;
+      color: var(--muted); font-size: 13px; cursor: pointer;
+    }
+    .add-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* Waveform */
+    .waveform-wrap { width: 100%; max-width: 480px; margin-top: 16px; }
+    canvas#wave { width: 100%; height: 64px; border-radius: 12px; background: var(--surface); display: block; }
+
+    /* Timer */
+    .total-time { font-size: 13px; color: var(--muted); margin-top: 10px; font-variant-numeric: tabular-nums; }
+
+    /* Chart */
+    .chart-wrap { width: 100%; max-width: 480px; margin-top: 16px; }
+    .chart-bars { display: flex; flex-direction: column; gap: 8px; }
+    .bar-row { display: flex; align-items: center; gap: 10px; }
+    .bar-label { font-size: 12px; min-width: 56px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .bar-track { flex: 1; height: 18px; background: var(--surface); border-radius: 9px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 9px; transition: width .4s ease; }
+    .bar-pct { font-size: 12px; min-width: 34px; text-align: right; color: var(--muted); }
+
+    /* Controls */
+    .controls { display: flex; gap: 12px; margin-top: 20px; width: 100%; max-width: 480px; }
+    .ctrl-btn {
+      flex: 1; padding: 14px; border-radius: 14px; border: none;
+      font-size: 15px; font-weight: 600; cursor: pointer;
+      transition: opacity .15s;
+    }
+    .ctrl-btn:active { opacity: .7; }
+    #btnRecord { background: #238636; color: #fff; }
+    #btnRecord.recording { background: #da3633; }
+    #btnReset { background: var(--surface); color: var(--muted); border: 1px solid var(--border); flex: 0 0 auto; width: 52px; font-size: 18px; }
+
+    /* Status */
+    .status { font-size: 12px; color: var(--muted); margin-top: 10px; min-height: 18px; text-align: center; }
+    .status.err { color: #f85149; }
+
+    /* Silence note */
+    .silence-note { font-size: 11px; color: var(--muted); margin-top: 14px; max-width: 480px; text-align: center; opacity: .7; }
+
+    /* mic permission note */
+    .perm-note { font-size: 13px; color: #f0883e; margin-top: 8px; text-align: center; display: none; }
+  </style>
+</head>
+<body>
+
+<h1>대화 비중 분석기</h1>
+<p class="subtitle">녹음 중 말하는 사람 버튼을 터치하세요</p>
+
+<div class="speakers" id="speakerGrid"></div>
+
+<div class="add-wrap">
+  <button class="add-btn" id="addSpeaker">+ 참가자 추가</button>
+</div>
+
+<div class="waveform-wrap">
+  <canvas id="wave" height="64"></canvas>
+</div>
+<div class="total-time" id="totalTime">총 0:00</div>
+
+<div class="chart-wrap">
+  <div class="chart-bars" id="chartBars"></div>
+</div>
+
+<div class="controls">
+  <button class="ctrl-btn" id="btnRecord">녹음 시작</button>
+  <button class="ctrl-btn" id="btnReset" title="초기화">↺</button>
+</div>
+<div class="status" id="status"></div>
+<p class="perm-note" id="permNote">마이크 권한이 필요합니다. 브라우저 설정에서 허용해 주세요.</p>
+<p class="silence-note">💡 녹음 중 말하는 사람의 버튼을 눌러 전환하세요. 버튼을 누른 시간이 해당 참가자의 대화 시간으로 기록됩니다.</p>
+
+<script>
+(function () {
+  const COLORS = ['#58a6ff', '#3fb950', '#f78166', '#e3b341', '#bc8cff', '#ff7b72'];
+
+  let speakers = [
+    { id: 0, name: '참가자 1', time: 0, color: COLORS[0] },
+    { id: 1, name: '참가자 2', time: 1, color: COLORS[1] },
+  ];
+  speakers[1].time = 0;
+
+  let nextId = 2;
+  let activeSpeakerId = null;
+  let isRecording = false;
+  let lastTick = null;
+  let tickInterval = null;
+  let totalTime = 0;
+
+  // Audio
+  let mediaRecorder = null;
+  let audioCtx = null;
+  let analyser = null;
+  let sourceNode = null;
+  let animFrame = null;
+  let stream = null;
+
+  const grid = document.getElementById('speakerGrid');
+  const addBtn = document.getElementById('addSpeaker');
+  const btnRecord = document.getElementById('btnRecord');
+  const btnReset = document.getElementById('btnReset');
+  const statusEl = document.getElementById('status');
+  const permNote = document.getElementById('permNote');
+  const totalTimeEl = document.getElementById('totalTime');
+  const chartBars = document.getElementById('chartBars');
+  const waveCanvas = document.getElementById('wave');
+  const waveCtx = waveCanvas.getContext('2d');
+
+  function fmt(sec) {
+    const m = Math.floor(sec / 60);
+    const s = Math.floor(sec % 60);
+    return m + ':' + String(s).padStart(2, '0');
+  }
+
+  function renderSpeakers() {
+    grid.innerHTML = '';
+    speakers.forEach(sp => {
+      const total = speakers.reduce((a, b) => a + b.time, 0);
+      const pct = total > 0 ? Math.round(sp.time / total * 100) : 0;
+
+      const btn = document.createElement('div');
+      btn.className = 'speaker-btn' + (sp.id === activeSpeakerId ? ' active' : '');
+      btn.style.setProperty('--color', sp.color);
+      btn.dataset.id = sp.id;
+      btn.innerHTML = `
+        <div class="pulse-ring"></div>
+        <div class="indicator"></div>
+        <div class="speaker-name-wrap">
+          <input class="speaker-name" value="${sp.name}" maxlength="8" data-id="${sp.id}" readonly>
+        </div>
+        <div class="speaker-time">${fmt(sp.time)}</div>
+        <div class="speaker-pct">${pct}%</div>
+      `;
+      grid.appendChild(btn);
+
+      btn.addEventListener('click', function (e) {
+        if (!isRecording) return;
+        if (e.target.classList.contains('speaker-name')) return;
+        toggleSpeaker(sp.id);
+      });
+
+      const nameInput = btn.querySelector('.speaker-name');
+      nameInput.addEventListener('dblclick', function () {
+        nameInput.removeAttribute('readonly');
+        nameInput.focus();
+        nameInput.select();
+      });
+      nameInput.addEventListener('blur', function () {
+        sp.name = nameInput.value.trim() || sp.name;
+        nameInput.setAttribute('readonly', '');
+        renderChart();
+      });
+      nameInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') nameInput.blur();
+      });
+    });
+  }
+
+  function renderChart() {
+    chartBars.innerHTML = '';
+    const total = speakers.reduce((a, b) => a + b.time, 0);
+    speakers.forEach(sp => {
+      const pct = total > 0 ? Math.round(sp.time / total * 100) : 0;
+      const row = document.createElement('div');
+      row.className = 'bar-row';
+      row.innerHTML = `
+        <div class="bar-label" title="${sp.name}">${sp.name}</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${sp.color}"></div></div>
+        <div class="bar-pct">${pct}%</div>
+      `;
+      chartBars.appendChild(row);
+    });
+  }
+
+  function toggleSpeaker(id) {
+    if (activeSpeakerId === id) {
+      activeSpeakerId = null;
+    } else {
+      activeSpeakerId = id;
+    }
+    lastTick = performance.now();
+    renderSpeakers();
+  }
+
+  function tick() {
+    if (!isRecording) return;
+    const now = performance.now();
+    const elapsed = (now - lastTick) / 1000;
+    lastTick = now;
+    totalTime += elapsed;
+    if (activeSpeakerId !== null) {
+      const sp = speakers.find(s => s.id === activeSpeakerId);
+      if (sp) sp.time += elapsed;
+    }
+    totalTimeEl.textContent = '총 ' + fmt(totalTime);
+    renderSpeakers();
+    renderChart();
+  }
+
+  addBtn.addEventListener('click', function () {
+    if (speakers.length >= 6) {
+      setStatus('참가자는 최대 6명까지 추가할 수 있습니다.', true);
+      return;
+    }
+    const color = COLORS[speakers.length % COLORS.length];
+    speakers.push({ id: nextId++, name: '참가자 ' + (speakers.length + 1), time: 0, color });
+    renderSpeakers();
+    renderChart();
+  });
+
+  btnRecord.addEventListener('click', async function () {
+    if (isRecording) {
+      stopRecording();
+    } else {
+      await startRecording();
+    }
+  });
+
+  btnReset.addEventListener('click', function () {
+    if (isRecording) stopRecording();
+    speakers.forEach(s => s.time = 0);
+    totalTime = 0;
+    activeSpeakerId = null;
+    totalTimeEl.textContent = '총 0:00';
+    renderSpeakers();
+    renderChart();
+    setStatus('');
+  });
+
+  async function startRecording() {
+    setStatus('마이크 권한 요청 중...');
+    permNote.style.display = 'none';
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+    } catch (e) {
+      setStatus('마이크 접근 실패: ' + (e.message || e), true);
+      permNote.style.display = 'block';
+      return;
+    }
+
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    analyser = audioCtx.createAnalyser();
+    analyser.fftSize = 1024;
+    sourceNode = audioCtx.createMediaStreamSource(stream);
+    sourceNode.connect(analyser);
+
+    mediaRecorder = new MediaRecorder(stream);
+    mediaRecorder.start();
+
+    isRecording = true;
+    activeSpeakerId = null;
+    lastTick = performance.now();
+    tickInterval = setInterval(tick, 200);
+
+    btnRecord.textContent = '녹음 중지';
+    btnRecord.classList.add('recording');
+    setStatus('녹음 중 · 말하는 사람 버튼을 눌러주세요');
+    drawWave();
+  }
+
+  function stopRecording() {
+    isRecording = false;
+    activeSpeakerId = null;
+    clearInterval(tickInterval);
+    if (animFrame) cancelAnimationFrame(animFrame);
+
+    if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
+    if (stream) stream.getTracks().forEach(t => t.stop());
+    if (sourceNode) sourceNode.disconnect();
+    if (audioCtx) audioCtx.close();
+
+    mediaRecorder = null; stream = null; audioCtx = null; analyser = null; sourceNode = null;
+
+    btnRecord.textContent = '녹음 시작';
+    btnRecord.classList.remove('recording');
+    setStatus('녹음 완료');
+    clearWave();
+    renderSpeakers();
+    renderChart();
+  }
+
+  function drawWave() {
+    if (!isRecording || !analyser) return;
+    const buf = new Uint8Array(analyser.frequencyBinCount);
+    analyser.getByteTimeDomainData(buf);
+
+    const W = waveCanvas.width = waveCanvas.offsetWidth * devicePixelRatio;
+    const H = waveCanvas.height = waveCanvas.offsetHeight * devicePixelRatio;
+    waveCtx.clearRect(0, 0, W, H);
+
+    const activeColor = activeSpeakerId !== null
+      ? speakers.find(s => s.id === activeSpeakerId)?.color || '#58a6ff'
+      : '#30363d';
+
+    waveCtx.beginPath();
+    waveCtx.strokeStyle = activeColor;
+    waveCtx.lineWidth = 2 * devicePixelRatio;
+    const sliceW = W / buf.length;
+    let x = 0;
+    for (let i = 0; i < buf.length; i++) {
+      const v = buf[i] / 128;
+      const y = (v * H) / 2;
+      i === 0 ? waveCtx.moveTo(x, y) : waveCtx.lineTo(x, y);
+      x += sliceW;
+    }
+    waveCtx.stroke();
+    animFrame = requestAnimationFrame(drawWave);
+  }
+
+  function clearWave() {
+    const W = waveCanvas.width = waveCanvas.offsetWidth * devicePixelRatio;
+    const H = waveCanvas.height = waveCanvas.offsetHeight * devicePixelRatio;
+    waveCtx.clearRect(0, 0, W, H);
+    waveCtx.beginPath();
+    waveCtx.strokeStyle = '#30363d';
+    waveCtx.lineWidth = 1.5 * devicePixelRatio;
+    waveCtx.moveTo(0, H / 2);
+    waveCtx.lineTo(W, H / 2);
+    waveCtx.stroke();
+  }
+
+  function setStatus(msg, isErr) {
+    statusEl.textContent = msg;
+    statusEl.className = 'status' + (isErr ? ' err' : '');
+  }
+
+  // Init
+  renderSpeakers();
+  renderChart();
+  setTimeout(clearWave, 50);
+})();
+</script>
+</body>
+</html>
