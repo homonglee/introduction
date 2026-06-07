@@ -6,410 +6,579 @@
   <title>대화 비중 분석기</title>
   <style>
     :root {
-      --bg: #0d1117;
-      --surface: #161b22;
-      --border: #30363d;
-      --text: #e6edf3;
-      --muted: #8b949e;
-      --accent: #58a6ff;
+      --bg:#0d1117; --surface:#161b22; --border:#30363d;
+      --text:#e6edf3; --muted:#8b949e; --accent:#58a6ff;
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-    html, body { height: 100%; background: var(--bg); color: var(--text); font-family: -apple-system, "Pretendard", system-ui, sans-serif; }
+    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+    html,body{min-height:100%;background:var(--bg);color:var(--text);
+      font-family:-apple-system,"Pretendard",system-ui,sans-serif}
+    body{display:flex;flex-direction:column;align-items:center;padding:20px 16px 40px}
 
-    body { display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 16px; }
+    h1{font-size:20px;font-weight:700;margin-bottom:4px}
+    .subtitle{color:var(--muted);font-size:13px;margin-bottom:24px}
 
-    h1 { font-size: 20px; font-weight: 700; margin: 12px 0 4px; }
-    .subtitle { color: var(--muted); font-size: 13px; margin-bottom: 20px; }
+    .screen{width:100%;max-width:480px;display:none;flex-direction:column;align-items:center;gap:16px}
+    .screen.active{display:flex}
 
-    /* Speaker buttons */
-    .speakers { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; max-width: 480px; }
-    .speaker-btn {
-      position: relative;
-      border: 2px solid var(--border);
-      border-radius: 20px;
-      background: var(--surface);
-      padding: 20px 12px 16px;
-      cursor: pointer;
-      transition: border-color .15s, background .15s;
-      user-select: none;
-      -webkit-user-select: none;
-      touch-action: manipulation;
+    /* ── Record screen ── */
+    .timer{font-size:64px;font-weight:700;letter-spacing:-3px;font-variant-numeric:tabular-nums}
+    .timer.rec{color:#f85149}
+    canvas#wave{width:100%;height:72px;border-radius:12px;background:var(--surface);display:block}
+    .rec-status{color:var(--muted);font-size:13px;text-align:center;min-height:18px}
+    .btn-circle{
+      width:80px;height:80px;border-radius:50%;border:none;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+      cursor:pointer;transition:transform .1s,background .2s;
+      background:#238636;color:#fff;font-weight:700
     }
-    .speaker-btn.active {
-      border-color: var(--color);
-      background: color-mix(in srgb, var(--color) 12%, var(--surface));
-      box-shadow: 0 0 0 3px color-mix(in srgb, var(--color) 25%, transparent);
-    }
-    .speaker-btn .indicator {
-      width: 14px; height: 14px;
-      border-radius: 50%;
-      background: var(--color);
-      margin: 0 auto 10px;
-      transition: transform .1s;
-    }
-    .speaker-btn.active .indicator {
-      transform: scale(1.4);
-      box-shadow: 0 0 8px var(--color);
-    }
-    .speaker-name-wrap { display: flex; align-items: center; justify-content: center; gap: 6px; }
-    .speaker-name {
-      font-size: 15px; font-weight: 600;
-      border: none; background: transparent; color: var(--text);
-      text-align: center; width: 80px;
-      outline: none; cursor: text;
-    }
-    .speaker-name:focus { border-bottom: 1px solid var(--accent); }
-    .speaker-time { font-size: 22px; font-weight: 700; margin: 8px 0 4px; font-variant-numeric: tabular-nums; }
-    .speaker-pct { font-size: 13px; color: var(--muted); }
-    .pulse-ring {
-      position: absolute; top: 10px; right: 10px;
-      width: 10px; height: 10px;
-      border-radius: 50%;
-      background: var(--color);
-      opacity: 0;
-    }
-    .speaker-btn.active .pulse-ring {
-      animation: pulse 1.2s ease-out infinite;
-    }
-    @keyframes pulse {
-      0%   { opacity: .8; transform: scale(1); }
-      100% { opacity: 0;  transform: scale(2.5); }
-    }
+    .btn-circle.rec{background:#da3633}
+    .btn-circle:active{transform:scale(.93)}
+    .btn-circle .ic{font-size:28px;line-height:1}
+    .btn-circle .lb{font-size:11px}
+    .err{color:#f85149;font-size:13px;text-align:center;min-height:16px}
 
-    /* Add speaker */
-    .add-wrap { width: 100%; max-width: 480px; margin-top: 6px; }
-    .add-btn {
-      width: 100%; padding: 10px; border-radius: 12px;
-      border: 1px dashed var(--border); background: transparent;
-      color: var(--muted); font-size: 13px; cursor: pointer;
+    /* ── Analyzing screen ── */
+    .ana-wrap{text-align:center;padding:40px 0;width:100%}
+    .ana-title{font-size:18px;font-weight:600;margin-bottom:6px}
+    .ana-sub{color:var(--muted);font-size:13px;margin-bottom:24px}
+    .prog-bar{width:100%;height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+    .prog-fill{height:100%;background:var(--accent);border-radius:3px;transition:width .3s}
+    .prog-lbl{color:var(--muted);font-size:12px;margin-top:8px}
+
+    /* ── Results screen ── */
+    .res-header{width:100%;display:flex;justify-content:space-between;align-items:center}
+    .res-title{font-size:16px;font-weight:600}
+    .res-dur{font-size:13px;color:var(--muted)}
+    .sec-lbl{width:100%;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-top:4px}
+    .sep{width:100%;height:1px;background:var(--border)}
+
+    /* Timeline */
+    .tl-track{width:100%;height:44px;background:var(--surface);border-radius:10px;overflow:hidden;display:flex}
+    .tl-seg{height:100%}
+    .tl-ticks{display:flex;justify-content:space-between;margin-top:4px}
+    .tl-tick{font-size:10px;color:var(--muted)}
+
+    /* Speaker grid */
+    .sp-grid{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .sp-card{
+      background:var(--surface);border:2px solid var(--border);
+      border-radius:16px;padding:14px 10px;
+      display:flex;flex-direction:column;align-items:center;gap:5px;
     }
-    .add-btn:hover { border-color: var(--accent); color: var(--accent); }
-
-    /* Waveform */
-    .waveform-wrap { width: 100%; max-width: 480px; margin-top: 16px; }
-    canvas#wave { width: 100%; height: 64px; border-radius: 12px; background: var(--surface); display: block; }
-
-    /* Timer */
-    .total-time { font-size: 13px; color: var(--muted); margin-top: 10px; font-variant-numeric: tabular-nums; }
-
-    /* Chart */
-    .chart-wrap { width: 100%; max-width: 480px; margin-top: 16px; }
-    .chart-bars { display: flex; flex-direction: column; gap: 8px; }
-    .bar-row { display: flex; align-items: center; gap: 10px; }
-    .bar-label { font-size: 12px; min-width: 56px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .bar-track { flex: 1; height: 18px; background: var(--surface); border-radius: 9px; overflow: hidden; }
-    .bar-fill { height: 100%; border-radius: 9px; transition: width .4s ease; }
-    .bar-pct { font-size: 12px; min-width: 34px; text-align: right; color: var(--muted); }
-
-    /* Controls */
-    .controls { display: flex; gap: 12px; margin-top: 20px; width: 100%; max-width: 480px; }
-    .ctrl-btn {
-      flex: 1; padding: 14px; border-radius: 14px; border: none;
-      font-size: 15px; font-weight: 600; cursor: pointer;
-      transition: opacity .15s;
+    .sp-dot{width:12px;height:12px;border-radius:50%}
+    .sp-name{
+      font-size:15px;font-weight:600;text-align:center;
+      background:transparent;border:none;color:var(--text);
+      width:100%;outline:none;cursor:default;
     }
-    .ctrl-btn:active { opacity: .7; }
-    #btnRecord { background: #238636; color: #fff; }
-    #btnRecord.recording { background: #da3633; }
-    #btnReset { background: var(--surface); color: var(--muted); border: 1px solid var(--border); flex: 0 0 auto; width: 52px; font-size: 18px; }
+    .sp-name:focus{border-bottom:1px solid var(--accent);cursor:text}
+    .sp-time{font-size:22px;font-weight:700;font-variant-numeric:tabular-nums}
+    .sp-pct{font-size:12px;color:var(--muted)}
+    .sp-badge{font-size:11px;padding:2px 8px;border-radius:10px}
 
-    /* Status */
-    .status { font-size: 12px; color: var(--muted); margin-top: 10px; min-height: 18px; text-align: center; }
-    .status.err { color: #f85149; }
+    /* Bar chart */
+    .bar-chart{width:100%;display:flex;flex-direction:column;gap:8px}
+    .bar-row{display:flex;align-items:center;gap:8px}
+    .bar-lbl{font-size:12px;color:var(--muted);min-width:52px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .bar-track{flex:1;height:16px;background:var(--border);border-radius:8px;overflow:hidden}
+    .bar-fill{height:100%;border-radius:8px;transition:width .5s ease}
+    .bar-pct{font-size:12px;min-width:32px;text-align:right;color:var(--muted)}
 
-    /* Silence note */
-    .silence-note { font-size: 11px; color: var(--muted); margin-top: 14px; max-width: 480px; text-align: center; opacity: .7; }
-
-    /* mic permission note */
-    .perm-note { font-size: 13px; color: #f0883e; margin-top: 8px; text-align: center; display: none; }
+    .btn-new{padding:10px 24px;border-radius:10px;border:1px solid var(--border);
+      background:var(--surface);color:var(--muted);cursor:pointer;font-size:14px}
+    .btn-new:hover{color:var(--text)}
+    .hint{font-size:11px;color:var(--muted);text-align:center}
+    .back-link{position:fixed;top:14px;left:14px;font-size:13px;color:var(--muted);text-decoration:none}
+    .back-link:hover{color:var(--text)}
   </style>
 </head>
 <body>
+  <a class="back-link" href="./index.html">← 홈</a>
+  <h1>대화 비중 분석기</h1>
+  <p class="subtitle">녹음 후 자동으로 화자를 분리 · 분석합니다</p>
 
-<h1>대화 비중 분석기</h1>
-<p class="subtitle">녹음 중 말하는 사람 버튼을 터치하세요</p>
+  <!-- Screen 1: 녹음 -->
+  <div class="screen active" id="sRec">
+    <div class="timer" id="timer">0:00</div>
+    <canvas id="wave" height="72"></canvas>
+    <p class="rec-status" id="recStatus">버튼을 눌러 녹음을 시작하세요</p>
+    <button class="btn-circle" id="btnRec">
+      <span class="ic">●</span><span class="lb" id="btnLbl">녹음</span>
+    </button>
+    <p class="err" id="errMsg"></p>
+  </div>
 
-<div class="speakers" id="speakerGrid"></div>
+  <!-- Screen 2: 분석 중 -->
+  <div class="screen" id="sAna">
+    <div class="ana-wrap">
+      <div class="ana-title">음성 분석 중...</div>
+      <div class="ana-sub">화자별 음성 특징을 추출하고 있습니다</div>
+      <div class="prog-bar"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+      <div class="prog-lbl" id="progLbl">준비 중...</div>
+    </div>
+  </div>
 
-<div class="add-wrap">
-  <button class="add-btn" id="addSpeaker">+ 참가자 추가</button>
-</div>
-
-<div class="waveform-wrap">
-  <canvas id="wave" height="64"></canvas>
-</div>
-<div class="total-time" id="totalTime">총 0:00</div>
-
-<div class="chart-wrap">
-  <div class="chart-bars" id="chartBars"></div>
-</div>
-
-<div class="controls">
-  <button class="ctrl-btn" id="btnRecord">녹음 시작</button>
-  <button class="ctrl-btn" id="btnReset" title="초기화">↺</button>
-</div>
-<div class="status" id="status"></div>
-<p class="perm-note" id="permNote">마이크 권한이 필요합니다. 브라우저 설정에서 허용해 주세요.</p>
-<p class="silence-note">💡 녹음 중 말하는 사람의 버튼을 눌러 전환하세요. 버튼을 누른 시간이 해당 참가자의 대화 시간으로 기록됩니다.</p>
+  <!-- Screen 3: 결과 -->
+  <div class="screen" id="sRes">
+    <div class="res-header">
+      <span class="res-title">분석 결과</span>
+      <span class="res-dur" id="resDur"></span>
+    </div>
+    <div class="sec-lbl">대화 타임라인</div>
+    <div id="tlWrap" style="width:100%"></div>
+    <div class="sec-lbl">화자별 대화 시간</div>
+    <div class="sp-grid" id="spGrid"></div>
+    <div class="sep"></div>
+    <div class="sec-lbl">대화 비율</div>
+    <div class="bar-chart" id="barChart"></div>
+    <button class="btn-new" id="btnNew">↺ 새 녹음</button>
+    <p class="hint">이름을 탭하면 수정할 수 있습니다</p>
+  </div>
 
 <script>
-(function () {
-  const COLORS = ['#58a6ff', '#3fb950', '#f78166', '#e3b341', '#bc8cff', '#ff7b72'];
+(function(){
+'use strict';
 
-  let speakers = [
-    { id: 0, name: '참가자 1', time: 0, color: COLORS[0] },
-    { id: 1, name: '참가자 2', time: 1, color: COLORS[1] },
-  ];
-  speakers[1].time = 0;
+/* ═══════════════════════════════════════════════════════
+   CONSTANTS
+═══════════════════════════════════════════════════════ */
+const COLORS = ['#58a6ff','#3fb950','#f78166','#e3b341','#bc8cff','#ff7b72'];
+const FFT_N        = 2048;   // FFT size
+const HOP_MS       = 25;     // frame hop (ms)
+const WIN_MS       = 50;     // analysis window (ms)
+const MIN_SEG_S    = 0.25;   // min speech segment
+const MERGE_GAP_S  = 0.35;   // merge silence gaps smaller than this
+const MAX_SP       = 6;      // max speakers
+const DIST_THRESH  = 0.26;   // speaker clustering threshold
+const MALE_HZ      = 160;    // F0 below this → male
 
-  let nextId = 2;
-  let activeSpeakerId = null;
-  let isRecording = false;
-  let lastTick = null;
-  let tickInterval = null;
-  let totalTime = 0;
+/* ═══════════════════════════════════════════════════════
+   DOM
+═══════════════════════════════════════════════════════ */
+const sRec   = document.getElementById('sRec');
+const sAna   = document.getElementById('sAna');
+const sRes   = document.getElementById('sRes');
+const timerEl   = document.getElementById('timer');
+const waveCanv  = document.getElementById('wave');
+const waveCtx   = waveCanv.getContext('2d');
+const recStatus = document.getElementById('recStatus');
+const btnRec    = document.getElementById('btnRec');
+const btnLbl    = document.getElementById('btnLbl');
+const errMsg    = document.getElementById('errMsg');
+const progFill  = document.getElementById('progFill');
+const progLbl   = document.getElementById('progLbl');
+const resDur    = document.getElementById('resDur');
+const tlWrap    = document.getElementById('tlWrap');
+const spGrid    = document.getElementById('spGrid');
+const barChart  = document.getElementById('barChart');
+const btnNew    = document.getElementById('btnNew');
 
-  // Audio
-  let mediaRecorder = null;
-  let audioCtx = null;
-  let analyser = null;
-  let sourceNode = null;
-  let animFrame = null;
-  let stream = null;
+/* ═══════════════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════════════ */
+let isRec = false, mediaRec = null, chunks = [], stream = null;
+let actx = null, analyser = null, srcNode = null, raf = null, timerIv = null;
+let recStart = 0, speakers = [];
 
-  const grid = document.getElementById('speakerGrid');
-  const addBtn = document.getElementById('addSpeaker');
-  const btnRecord = document.getElementById('btnRecord');
-  const btnReset = document.getElementById('btnReset');
-  const statusEl = document.getElementById('status');
-  const permNote = document.getElementById('permNote');
-  const totalTimeEl = document.getElementById('totalTime');
-  const chartBars = document.getElementById('chartBars');
-  const waveCanvas = document.getElementById('wave');
-  const waveCtx = waveCanvas.getContext('2d');
+/* ═══════════════════════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════════════════════ */
+const fmt = s => { const m=Math.floor(s/60),ss=Math.floor(s%60); return m+':'+String(ss).padStart(2,'0'); };
+const tick = () => new Promise(r => requestAnimationFrame(r));
+function showScr(s){ [sRec,sAna,sRes].forEach(e=>e.classList.remove('active')); s.classList.add('active'); }
 
-  function fmt(sec) {
-    const m = Math.floor(sec / 60);
-    const s = Math.floor(sec % 60);
-    return m + ':' + String(s).padStart(2, '0');
+/* ═══════════════════════════════════════════════════════
+   FFT — iterative Cooley-Tukey
+═══════════════════════════════════════════════════════ */
+function fft(re, im) {
+  const n = re.length;
+  // bit-reversal
+  for (let i=1,j=0; i<n; i++) {
+    let bit = n>>1;
+    for (; j&bit; bit>>=1) j^=bit;
+    j^=bit;
+    if (i<j) {
+      let t=re[i]; re[i]=re[j]; re[j]=t;
+      t=im[i]; im[i]=im[j]; im[j]=t;
+    }
   }
-
-  function renderSpeakers() {
-    grid.innerHTML = '';
-    speakers.forEach(sp => {
-      const total = speakers.reduce((a, b) => a + b.time, 0);
-      const pct = total > 0 ? Math.round(sp.time / total * 100) : 0;
-
-      const btn = document.createElement('div');
-      btn.className = 'speaker-btn' + (sp.id === activeSpeakerId ? ' active' : '');
-      btn.style.setProperty('--color', sp.color);
-      btn.dataset.id = sp.id;
-      btn.innerHTML = `
-        <div class="pulse-ring"></div>
-        <div class="indicator"></div>
-        <div class="speaker-name-wrap">
-          <input class="speaker-name" value="${sp.name}" maxlength="8" data-id="${sp.id}" readonly>
-        </div>
-        <div class="speaker-time">${fmt(sp.time)}</div>
-        <div class="speaker-pct">${pct}%</div>
-      `;
-      grid.appendChild(btn);
-
-      btn.addEventListener('click', function (e) {
-        if (!isRecording) return;
-        if (e.target.classList.contains('speaker-name')) return;
-        toggleSpeaker(sp.id);
-      });
-
-      const nameInput = btn.querySelector('.speaker-name');
-      nameInput.addEventListener('dblclick', function () {
-        nameInput.removeAttribute('readonly');
-        nameInput.focus();
-        nameInput.select();
-      });
-      nameInput.addEventListener('blur', function () {
-        sp.name = nameInput.value.trim() || sp.name;
-        nameInput.setAttribute('readonly', '');
-        renderChart();
-      });
-      nameInput.addEventListener('keydown', function (e) {
-        if (e.key === 'Enter') nameInput.blur();
-      });
-    });
+  // butterfly
+  for (let len=2; len<=n; len<<=1) {
+    const a=2*Math.PI/len, wr=Math.cos(a), wi=-Math.sin(a);
+    for (let i=0; i<n; i+=len) {
+      let cr=1, ci=0;
+      for (let j=0; j<(len>>1); j++) {
+        const p=i+j, q=i+j+(len>>1);
+        const vr=re[q]*cr-im[q]*ci, vi=re[q]*ci+im[q]*cr;
+        re[q]=re[p]-vr; im[q]=im[p]-vi;
+        re[p]+=vr;      im[p]+=vi;
+        const t=cr*wr-ci*wi; ci=cr*wi+ci*wr; cr=t;
+      }
+    }
   }
+}
 
-  function renderChart() {
-    chartBars.innerHTML = '';
-    const total = speakers.reduce((a, b) => a + b.time, 0);
-    speakers.forEach(sp => {
-      const pct = total > 0 ? Math.round(sp.time / total * 100) : 0;
-      const row = document.createElement('div');
-      row.className = 'bar-row';
-      row.innerHTML = `
-        <div class="bar-label" title="${sp.name}">${sp.name}</div>
-        <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${sp.color}"></div></div>
-        <div class="bar-pct">${pct}%</div>
-      `;
-      chartBars.appendChild(row);
-    });
+/* ═══════════════════════════════════════════════════════
+   FRAME FEATURE EXTRACTION
+   returns { energy, f0, centroid }
+═══════════════════════════════════════════════════════ */
+function frameFeatures(samples, sr) {
+  const n = FFT_N;
+  const re = new Float32Array(n), im = new Float32Array(n);
+  const L = Math.min(n, samples.length);
+  let energy = 0;
+  for (let i=0; i<L; i++) {
+    const w = 0.5 - 0.5*Math.cos(2*Math.PI*i/(L-1));
+    re[i] = samples[i]*w;
+    energy += samples[i]*samples[i];
   }
+  energy = Math.sqrt(energy/L);
+  fft(re, im);
 
-  function toggleSpeaker(id) {
-    if (activeSpeakerId === id) {
-      activeSpeakerId = null;
+  // magnitude spectrum
+  const mags = new Float32Array(n/2);
+  for (let i=0; i<n/2; i++) mags[i]=Math.sqrt(re[i]*re[i]+im[i]*im[i]);
+
+  // F0: peak in voice fundamental range 80–450 Hz
+  const f0lo = Math.max(1,Math.ceil(80*n/sr));
+  const f0hi = Math.min(n/2-1,Math.floor(450*n/sr));
+  let peak=0, peakBin=f0lo;
+  for (let i=f0lo; i<=f0hi; i++) { if (mags[i]>peak){ peak=mags[i]; peakBin=i; } }
+  const f0 = (peak>5e-4 && f0hi>f0lo) ? peakBin*sr/n : 0;
+
+  // Spectral centroid 80–5000 Hz (voice timbre)
+  const clo=Math.max(1,Math.ceil(80*n/sr));
+  const chi=Math.min(n/2-1,Math.floor(5000*n/sr));
+  let sw=0,sm=0;
+  for (let i=clo; i<=chi; i++){ sw+=i*mags[i]; sm+=mags[i]; }
+  const centroid = sm>0 ? (sw/sm)*sr/n : 500;
+
+  return { energy, f0, centroid };
+}
+
+/* ═══════════════════════════════════════════════════════
+   SPEAKER CLUSTERING
+═══════════════════════════════════════════════════════ */
+function clusterSpeakers(segs) {
+  if (!segs.length) return [];
+
+  const validF0 = segs.filter(s=>s.f0>0).map(s=>s.f0);
+  const allC    = segs.map(s=>s.centroid);
+  const f0lo = validF0.length ? Math.min(...validF0) : 80;
+  const f0hi = validF0.length ? Math.max(...validF0) : 400;
+  const clo  = Math.min(...allC), chi = Math.max(...allC);
+  const f0R  = Math.max(f0hi-f0lo, 1), cR = Math.max(chi-clo, 1);
+
+  const norm = seg => ({
+    fn: seg.f0>0 ? (seg.f0-f0lo)/f0R : -1,
+    cn: (seg.centroid-clo)/cR
+  });
+
+  const dist = (prof, seg) => {
+    const n=norm(seg); let d=0;
+    if (n.fn>=0 && prof.fn>=0) d += 0.65*(prof.fn-n.fn)**2;
+    else if (n.fn>=0 || prof.fn>=0) d += 0.05;
+    d += 0.35*(prof.cn-n.cn)**2;
+    return Math.sqrt(d);
+  };
+
+  const profs = []; // {fn,cn,sumF0,f0k,segK,totalTime}
+
+  segs.forEach(seg => {
+    const n=norm(seg);
+    if (!profs.length) {
+      profs.push({fn:n.fn>=0?n.fn:0.5, cn:n.cn, sumF0:seg.f0, f0k:seg.f0>0?1:0, segK:1, totalTime:seg.dur});
+      seg.sid=0; return;
+    }
+    let minD=Infinity, best=0;
+    profs.forEach((p,i)=>{ const d=dist(p,seg); if(d<minD){minD=d;best=i;} });
+
+    if (minD<DIST_THRESH || profs.length>=MAX_SP) {
+      const p=profs[best]; const k=++p.segK;
+      if (n.fn>=0) p.fn = (p.fn*(k-1)+n.fn)/k;
+      p.cn=(p.cn*(k-1)+n.cn)/k;
+      p.sumF0+=seg.f0; if(seg.f0>0) p.f0k++;
+      p.totalTime+=seg.dur; seg.sid=best;
     } else {
-      activeSpeakerId = id;
-    }
-    lastTick = performance.now();
-    renderSpeakers();
-  }
-
-  function tick() {
-    if (!isRecording) return;
-    const now = performance.now();
-    const elapsed = (now - lastTick) / 1000;
-    lastTick = now;
-    totalTime += elapsed;
-    if (activeSpeakerId !== null) {
-      const sp = speakers.find(s => s.id === activeSpeakerId);
-      if (sp) sp.time += elapsed;
-    }
-    totalTimeEl.textContent = '총 ' + fmt(totalTime);
-    renderSpeakers();
-    renderChart();
-  }
-
-  addBtn.addEventListener('click', function () {
-    if (speakers.length >= 6) {
-      setStatus('참가자는 최대 6명까지 추가할 수 있습니다.', true);
-      return;
-    }
-    const color = COLORS[speakers.length % COLORS.length];
-    speakers.push({ id: nextId++, name: '참가자 ' + (speakers.length + 1), time: 0, color });
-    renderSpeakers();
-    renderChart();
-  });
-
-  btnRecord.addEventListener('click', async function () {
-    if (isRecording) {
-      stopRecording();
-    } else {
-      await startRecording();
+      profs.push({fn:n.fn>=0?n.fn:0.5, cn:n.cn, sumF0:seg.f0, f0k:seg.f0>0?1:0, segK:1, totalTime:seg.dur});
+      seg.sid=profs.length-1;
     }
   });
 
-  btnReset.addEventListener('click', function () {
-    if (isRecording) stopRecording();
-    speakers.forEach(s => s.time = 0);
-    totalTime = 0;
-    activeSpeakerId = null;
-    totalTimeEl.textContent = '총 0:00';
-    renderSpeakers();
-    renderChart();
-    setStatus('');
+  return profs.map((p,i)=>({
+    id:i, color:COLORS[i%COLORS.length],
+    avgF0: p.f0k>0 ? p.sumF0/p.f0k : 0,
+    totalTime:p.totalTime, name:''
+  }));
+}
+
+function nameSpeakers(list) {
+  list.forEach(sp => {
+    sp.gender = (sp.avgF0>0 && sp.avgF0<MALE_HZ) ? 'male' : 'female';
+    sp.gLabel = sp.gender==='male' ? '남성' : '여성';
+  });
+  let mc=1, fc=1;
+  list.sort((a,b)=>a.id-b.id).forEach(sp => {
+    sp.name = sp.gender==='male' ? '남자'+mc++ : '여자'+fc++;
+  });
+}
+
+/* ═══════════════════════════════════════════════════════
+   MAIN ANALYSIS PIPELINE
+═══════════════════════════════════════════════════════ */
+async function analyze(blob, prog) {
+  prog(5,'오디오 디코딩 중...'); await tick();
+
+  const arrayBuf = await blob.arrayBuffer();
+  const tmpCtx = new AudioContext();
+  let audioBuf;
+  try { audioBuf = await tmpCtx.decodeAudioData(arrayBuf); }
+  finally { tmpCtx.close(); }
+
+  const sr      = audioBuf.sampleRate;
+  const pcm     = audioBuf.getChannelData(0);
+  const totalS  = audioBuf.duration;
+  const hopSmp  = Math.round(HOP_MS/1000*sr);
+  const winSmp  = Math.round(WIN_MS/1000*sr);
+  const nFrames = Math.max(0, Math.floor((pcm.length-winSmp)/hopSmp));
+
+  prog(10,'에너지 분석 중...'); await tick();
+
+  // 1. Frame-level features
+  const frames = [];
+  for (let fi=0; fi<nFrames; fi++) {
+    const s=fi*hopSmp;
+    const feat = frameFeatures(pcm.subarray(s, s+winSmp), sr);
+    feat.t = s/sr;
+    frames.push(feat);
+    if (fi%80===0){ prog(10+fi/nFrames*35,'에너지 분석 중...'); await tick(); }
+  }
+
+  prog(45,'음성 구간 감지 중...'); await tick();
+
+  // 2. VAD threshold (top 25% noise as floor)
+  const energies = frames.map(f=>f.energy);
+  const srtE = [...energies].sort((a,b)=>a-b);
+  const noiseF = srtE.slice(0, Math.max(1,Math.floor(srtE.length*0.2)))
+                     .reduce((a,b)=>a+b,0) / Math.max(1,Math.floor(srtE.length*0.2));
+  const vadT = Math.max(noiseF*4, srtE[Math.floor(srtE.length*0.18)]);
+
+  // 3. Speech segments
+  const isSp = frames.map(f=>f.energy>vadT);
+  const rawSegs=[];
+  let inSp=false, si=0;
+  isSp.forEach((v,i)=>{
+    if(v&&!inSp){inSp=true;si=i;}
+    else if(!v&&inSp){
+      inSp=false;
+      const st=frames[si].t, et=frames[i-1].t+WIN_MS/1000;
+      if(et-st>=MIN_SEG_S) rawSegs.push({start:st,end:et});
+    }
+  });
+  if(inSp){
+    const st=frames[si].t, et=frames[frames.length-1].t+WIN_MS/1000;
+    if(et-st>=MIN_SEG_S) rawSegs.push({start:st,end:et});
+  }
+
+  // Merge close gaps
+  const segs=[];
+  rawSegs.forEach(sg=>{
+    if(segs.length && sg.start-segs[segs.length-1].end<MERGE_GAP_S)
+      segs[segs.length-1].end=sg.end;
+    else segs.push({...sg});
   });
 
-  async function startRecording() {
-    setStatus('마이크 권한 요청 중...');
-    permNote.style.display = 'none';
-    try {
-      stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-    } catch (e) {
-      setStatus('마이크 접근 실패: ' + (e.message || e), true);
-      permNote.style.display = 'block';
-      return;
+  prog(55,'음성 특징 추출 중...'); await tick();
+
+  // 4. Per-segment features
+  segs.forEach(seg=>{
+    const sf=frames.filter(f=>f.t>=seg.start&&f.t<seg.end&&f.energy>vadT);
+    const vf0=sf.filter(f=>f.f0>80&&f.f0<450).map(f=>f.f0);
+    const vc=sf.filter(f=>f.centroid>0).map(f=>f.centroid);
+    seg.f0 = vf0.length ? vf0.reduce((a,b)=>a+b,0)/vf0.length : 0;
+    seg.centroid = vc.length ? vc.reduce((a,b)=>a+b,0)/vc.length : 800;
+    seg.dur = seg.end-seg.start;
+  });
+
+  prog(65,'화자 분리 중...'); await tick();
+
+  // 5. Cluster
+  const spList = clusterSpeakers(segs);
+  prog(80,'성별 분류 중...'); await tick();
+
+  // 6. Name
+  nameSpeakers(spList);
+  prog(92,'결과 정리 중...'); await tick();
+
+  return { segs, speakers:spList, totalS };
+}
+
+/* ═══════════════════════════════════════════════════════
+   RECORDING
+═══════════════════════════════════════════════════════ */
+btnRec.addEventListener('click', async () => {
+  if (isRec) { stopRec(); return; }
+  errMsg.textContent='';
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({audio:true,video:false});
+  } catch(e) {
+    errMsg.textContent='마이크 접근 실패: '+(e.message||e); return;
+  }
+  actx = new (window.AudioContext||window.webkitAudioContext)();
+  analyser = actx.createAnalyser(); analyser.fftSize=1024;
+  srcNode = actx.createMediaStreamSource(stream);
+  srcNode.connect(analyser);
+
+  chunks=[];
+  const mime = ['audio/webm;codecs=opus','audio/webm','audio/ogg']
+    .find(m=>MediaRecorder.isTypeSupported(m)) || '';
+  mediaRec = new MediaRecorder(stream, mime?{mimeType:mime}:{});
+  mediaRec.ondataavailable = e=>{ if(e.data.size>0) chunks.push(e.data); };
+  mediaRec.onstop = onStop;
+  mediaRec.start(100);
+
+  isRec=true; recStart=Date.now();
+  timerIv = setInterval(()=>{
+    const s=(Date.now()-recStart)/1000;
+    timerEl.textContent=fmt(s); timerEl.classList.add('rec');
+  },200);
+  drawWave();
+  btnRec.classList.add('rec'); btnLbl.textContent='중지';
+  btnRec.querySelector('.ic').textContent='■';
+  recStatus.textContent='녹음 중... 대화를 나눠주세요';
+});
+
+function stopRec(){
+  isRec=false;
+  clearInterval(timerIv);
+  cancelAnimationFrame(raf);
+  mediaRec.stop();
+  stream.getTracks().forEach(t=>t.stop());
+  if(srcNode) srcNode.disconnect();
+  if(actx) actx.close();
+  btnRec.classList.remove('rec'); btnLbl.textContent='녹음';
+  btnRec.querySelector('.ic').textContent='●';
+}
+
+async function onStop(){
+  showScr(sAna);
+  const blob = new Blob(chunks,{type:chunks[0]?.type||'audio/webm'});
+  try {
+    const res = await analyze(blob,(pct,lbl)=>{ progFill.style.width=pct+'%'; progLbl.textContent=lbl; });
+    speakers = res.speakers;
+    progFill.style.width='100%'; progLbl.textContent='완료!';
+    await tick();
+    renderResults(res);
+  } catch(e) {
+    showScr(sRec); errMsg.textContent='분석 오류: '+e.message;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════
+   WAVEFORM
+═══════════════════════════════════════════════════════ */
+function drawWave(){
+  if (!analyser) return;
+  const buf=new Uint8Array(analyser.frequencyBinCount);
+  analyser.getByteTimeDomainData(buf);
+  const W=waveCanv.width=waveCanv.offsetWidth*devicePixelRatio;
+  const H=waveCanv.height=waveCanv.offsetHeight*devicePixelRatio;
+  waveCtx.clearRect(0,0,W,H);
+  waveCtx.beginPath(); waveCtx.strokeStyle='#f85149'; waveCtx.lineWidth=2*devicePixelRatio;
+  const sw=W/buf.length;
+  for(let i=0;i<buf.length;i++){
+    const y=(buf[i]/128)*(H/2);
+    i===0?waveCtx.moveTo(0,y):waveCtx.lineTo(i*sw,y);
+  }
+  waveCtx.stroke();
+  if(isRec) raf=requestAnimationFrame(drawWave);
+}
+
+/* ═══════════════════════════════════════════════════════
+   RENDER RESULTS
+═══════════════════════════════════════════════════════ */
+function renderResults({segs, speakers:spList, totalS}){
+  resDur.textContent = '총 '+fmt(totalS);
+  const totalTalk = spList.reduce((a,b)=>a+b.totalTime,0);
+
+  // Timeline
+  tlWrap.innerHTML='';
+  const track=document.createElement('div'); track.className='tl-track';
+  const sorted=[...segs].sort((a,b)=>a.start-b.start);
+  let cursor=0;
+  sorted.forEach(seg=>{
+    if(seg.start>cursor){
+      const d=document.createElement('div'); d.className='tl-seg';
+      d.style.cssText=`width:${(seg.start-cursor)/totalS*100}%;background:#21262d`;
+      track.appendChild(d);
     }
-
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    analyser = audioCtx.createAnalyser();
-    analyser.fftSize = 1024;
-    sourceNode = audioCtx.createMediaStreamSource(stream);
-    sourceNode.connect(analyser);
-
-    mediaRecorder = new MediaRecorder(stream);
-    mediaRecorder.start();
-
-    isRecording = true;
-    activeSpeakerId = null;
-    lastTick = performance.now();
-    tickInterval = setInterval(tick, 200);
-
-    btnRecord.textContent = '녹음 중지';
-    btnRecord.classList.add('recording');
-    setStatus('녹음 중 · 말하는 사람 버튼을 눌러주세요');
-    drawWave();
+    const sp=spList[seg.sid];
+    const d=document.createElement('div'); d.className='tl-seg';
+    d.style.cssText=`width:${seg.dur/totalS*100}%;background:${sp?sp.color:'#999'}`;
+    d.title=(sp?sp.name:'?')+' '+fmt(seg.dur);
+    track.appendChild(d);
+    cursor=seg.end;
+  });
+  if(cursor<totalS){
+    const d=document.createElement('div'); d.className='tl-seg';
+    d.style.cssText=`width:${(totalS-cursor)/totalS*100}%;background:#21262d`;
+    track.appendChild(d);
   }
-
-  function stopRecording() {
-    isRecording = false;
-    activeSpeakerId = null;
-    clearInterval(tickInterval);
-    if (animFrame) cancelAnimationFrame(animFrame);
-
-    if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
-    if (stream) stream.getTracks().forEach(t => t.stop());
-    if (sourceNode) sourceNode.disconnect();
-    if (audioCtx) audioCtx.close();
-
-    mediaRecorder = null; stream = null; audioCtx = null; analyser = null; sourceNode = null;
-
-    btnRecord.textContent = '녹음 시작';
-    btnRecord.classList.remove('recording');
-    setStatus('녹음 완료');
-    clearWave();
-    renderSpeakers();
-    renderChart();
+  tlWrap.appendChild(track);
+  const ticks=document.createElement('div'); ticks.className='tl-ticks';
+  for(let i=0;i<=4;i++){
+    const t=document.createElement('div'); t.className='tl-tick';
+    t.textContent=fmt(totalS*i/4); ticks.appendChild(t);
   }
+  tlWrap.appendChild(ticks);
 
-  function drawWave() {
-    if (!isRecording || !analyser) return;
-    const buf = new Uint8Array(analyser.frequencyBinCount);
-    analyser.getByteTimeDomainData(buf);
+  // Speaker cards
+  spGrid.innerHTML='';
+  spList.forEach(sp=>{
+    const pct=totalTalk>0?Math.round(sp.totalTime/totalTalk*100):0;
+    const card=document.createElement('div'); card.className='sp-card';
+    const dot=document.createElement('div'); dot.className='sp-dot'; dot.style.background=sp.color;
+    const inp=document.createElement('input'); inp.className='sp-name';
+    inp.value=sp.name; inp.maxLength=8; inp.setAttribute('readonly','');
+    const timeEl=document.createElement('div'); timeEl.className='sp-time'; timeEl.textContent=fmt(sp.totalTime);
+    const pctEl=document.createElement('div'); pctEl.className='sp-pct'; pctEl.textContent=pct+'%';
+    const badge=document.createElement('div'); badge.className='sp-badge';
+    badge.style.cssText=`background:color-mix(in srgb,${sp.color} 15%,transparent);color:${sp.color}`;
+    badge.textContent=sp.gLabel+(sp.avgF0>0?' · '+Math.round(sp.avgF0)+'Hz':'');
+    card.append(dot,inp,timeEl,pctEl,badge);
+    spGrid.appendChild(card);
 
-    const W = waveCanvas.width = waveCanvas.offsetWidth * devicePixelRatio;
-    const H = waveCanvas.height = waveCanvas.offsetHeight * devicePixelRatio;
-    waveCtx.clearRect(0, 0, W, H);
+    inp.addEventListener('click',()=>{ inp.removeAttribute('readonly'); inp.focus(); inp.select(); });
+    inp.addEventListener('blur',()=>{
+      sp.name=inp.value.trim()||sp.name; inp.value=sp.name;
+      inp.setAttribute('readonly',''); rebuildBar(spList,totalTalk);
+    });
+    inp.addEventListener('keydown',e=>{ if(e.key==='Enter') inp.blur(); });
+  });
 
-    const activeColor = activeSpeakerId !== null
-      ? speakers.find(s => s.id === activeSpeakerId)?.color || '#58a6ff'
-      : '#30363d';
+  rebuildBar(spList, totalTalk);
+  showScr(sRes);
+}
 
-    waveCtx.beginPath();
-    waveCtx.strokeStyle = activeColor;
-    waveCtx.lineWidth = 2 * devicePixelRatio;
-    const sliceW = W / buf.length;
-    let x = 0;
-    for (let i = 0; i < buf.length; i++) {
-      const v = buf[i] / 128;
-      const y = (v * H) / 2;
-      i === 0 ? waveCtx.moveTo(x, y) : waveCtx.lineTo(x, y);
-      x += sliceW;
-    }
-    waveCtx.stroke();
-    animFrame = requestAnimationFrame(drawWave);
-  }
+function rebuildBar(spList, totalTalk){
+  barChart.innerHTML='';
+  spList.forEach(sp=>{
+    const pct=totalTalk>0?Math.round(sp.totalTime/totalTalk*100):0;
+    const row=document.createElement('div'); row.className='bar-row';
+    row.innerHTML=`<div class="bar-lbl" title="${sp.name}">${sp.name}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${sp.color}"></div></div>
+      <div class="bar-pct">${pct}%</div>`;
+    barChart.appendChild(row);
+  });
+}
 
-  function clearWave() {
-    const W = waveCanvas.width = waveCanvas.offsetWidth * devicePixelRatio;
-    const H = waveCanvas.height = waveCanvas.offsetHeight * devicePixelRatio;
-    waveCtx.clearRect(0, 0, W, H);
-    waveCtx.beginPath();
-    waveCtx.strokeStyle = '#30363d';
-    waveCtx.lineWidth = 1.5 * devicePixelRatio;
-    waveCtx.moveTo(0, H / 2);
-    waveCtx.lineTo(W, H / 2);
-    waveCtx.stroke();
-  }
+btnNew.addEventListener('click',()=>{
+  timerEl.textContent='0:00'; timerEl.classList.remove('rec');
+  recStatus.textContent='버튼을 눌러 녹음을 시작하세요';
+  errMsg.textContent=''; chunks=[]; speakers=[];
+  showScr(sRec);
+});
 
-  function setStatus(msg, isErr) {
-    statusEl.textContent = msg;
-    statusEl.className = 'status' + (isErr ? ' err' : '');
-  }
-
-  // Init
-  renderSpeakers();
-  renderChart();
-  setTimeout(clearWave, 50);
 })();
 </script>
 </body>
