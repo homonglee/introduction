@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IQ 테스트 — 한국의 평균 IQ는 106</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+      background: radial-gradient(ellipse at top, #0d2060 0%, #060e2a 60%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 24px 16px 40px;
+    }
+
+    .wrap { width: 100%; max-width: 500px; }
+
+    /* ── SHARED CARD ── */
+    .card {
+      background: #0e1f52;
+      border-radius: 18px;
+      padding: 32px 24px 28px;
+      box-shadow: 0 8px 60px rgba(0,40,180,.25), 0 0 0 1.5px rgba(80,120,255,.15);
+    }
+
+    /* ── INTRO SCREEN ── */
+    #intro .card-title {
+      font-size: 26px; font-weight: 900; color: #fff;
+      line-height: 1.35; text-align: center; margin-bottom: 6px;
+    }
+    #intro .card-title em { color: #ffd700; font-style: normal; }
+    #intro .card-subtitle {
+      font-size: 21px; font-weight: 800; color: #fff;
+      text-align: center; margin-bottom: 26px;
+    }
+
+    .score-table {
+      border: 1.5px solid #1f3b80;
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 22px;
+    }
+    .score-row {
+      display: flex; align-items: center;
+      padding: 11px 14px;
+      border-bottom: 1px solid #182e6a;
+    }
+    .score-row:last-child { border-bottom: none; }
+
+    .badge {
+      min-width: 66px; padding: 5px 8px;
+      border-radius: 7px; font-size: 13px; font-weight: 800;
+      color: #fff; text-align: center; margin-right: 12px; flex-shrink: 0;
+    }
+    .score-label { flex: 1; color: #fff; font-size: 15px; font-weight: 500; }
+    .score-iq {
+      color: #e0e8ff; font-size: 13px; font-weight: 600;
+      background: rgba(255,255,255,.08);
+      padding: 3px 10px; border-radius: 20px; white-space: nowrap;
+    }
+
+    /* ── QUIZ SCREEN ── */
+    #quiz { display: none; }
+
+    .q-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 12px;
+    }
+    .q-counter { color: #ffd700; font-size: 13px; font-weight: 700; }
+    .q-score   { color: #7b93c8; font-size: 13px; }
+
+    .progress-bar {
+      width: 100%; height: 6px; background: #1a3070;
+      border-radius: 3px; overflow: hidden; margin-bottom: 26px;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #ffd700, #ff9f0a);
+      border-radius: 3px; transition: width .4s ease;
+    }
+
+    .question-text {
+      color: #fff; font-size: 19px; font-weight: 700;
+      line-height: 1.55; margin-bottom: 24px; min-height: 56px;
+      word-break: keep-all;
+    }
+
+    .options { display: grid; grid-template-columns: 1fr 1fr; gap: 11px; }
+
+    .opt {
+      padding: 15px 10px;
+      background: #132060; border: 2px solid #1f3b80;
+      border-radius: 10px; color: #e0e8ff; font-size: 15px;
+      font-weight: 600; cursor: pointer; text-align: center;
+      transition: background .15s, border-color .15s, transform .15s;
+      word-break: keep-all; line-height: 1.4;
+    }
+    .opt:hover:not(:disabled) { background: #1e3a80; border-color: #4d7bcc; transform: translateY(-2px); }
+    .opt.correct { background: #0e4a1a; border-color: #2ecc71; color: #2ecc71; }
+    .opt.wrong   { background: #4a0e0e; border-color: #e74c3c; color: #ff6b6b; }
+    .opt:disabled { cursor: default; }
+
+    .feedback {
+      display: none; margin-top: 14px; padding: 10px 14px;
+      border-radius: 8px; font-size: 14px; font-weight: 700; text-align: center;
+    }
+    .feedback.ok  { background: rgba(46,204,113,.15); color: #2ecc71; }
+    .feedback.bad { background: rgba(231,76,60,.15);  color: #ff6b6b; }
+
+    /* ── RESULT SCREEN ── */
+    #result { display: none; text-align: center; }
+
+    .result-eyebrow { color: #7b93c8; font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+    .result-iq-num  {
+      font-size: 88px; font-weight: 900; color: #fff;
+      line-height: 1; margin: 8px 0 4px;
+      text-shadow: 0 0 40px rgba(255,215,0,.4);
+    }
+    .result-iq-label { font-size: 14px; color: #7b93c8; margin-bottom: 18px; }
+    .result-level {
+      font-size: 24px; font-weight: 800; margin-bottom: 22px;
+    }
+
+    .result-info-box {
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 12px; padding: 16px 20px; margin-bottom: 22px;
+      display: flex; justify-content: space-around;
+    }
+    .ri-item { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .ri-val  { color: #fff; font-size: 28px; font-weight: 900; }
+    .ri-lbl  { color: #7b93c8; font-size: 12px; }
+
+    .result-bar-wrap { margin-bottom: 24px; }
+    .result-bar-bg {
+      width: 100%; height: 12px; background: #1a3070;
+      border-radius: 6px; overflow: hidden; margin-bottom: 6px;
+    }
+    .result-bar-fill { height: 100%; border-radius: 6px; transition: width 1.2s ease; }
+    .result-bar-labels {
+      display: flex; justify-content: space-between;
+      color: #4d6296; font-size: 11px;
+    }
+
+    /* ── SHARED BUTTON ── */
+    .btn-yellow {
+      width: 100%; padding: 17px;
+      background: #ffd700; color: #090e1e;
+      border: none; border-radius: 10px;
+      font-size: 19px; font-weight: 900;
+      cursor: pointer; transition: background .15s, transform .15s, box-shadow .15s;
+    }
+    .btn-yellow:hover {
+      background: #ffe433; transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(255,215,0,.35);
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ─── INTRO ─────────────────────────── -->
+  <div id="intro" class="card">
+    <h1 class="card-title">한국의 평균 IQ는 <em>106</em></h1>
+    <p class="card-subtitle">당신은 그것을 넘어설 수 있을까요?</p>
+
+    <div class="score-table">
+      <div class="score-row">
+        <span class="badge" style="background:#e74c3c;">1–5</span>
+        <span class="score-label">낮음</span>
+        <span class="score-iq">IQ 80미만</span>
+      </div>
+      <div class="score-row">
+        <span class="badge" style="background:#e67e22;">6–10</span>
+        <span class="score-label">평균 이하</span>
+        <span class="score-iq">IQ 80〜95</span>
+      </div>
+      <div class="score-row">
+        <span class="badge" style="background:#d4ac0d;">11–15</span>
+        <span class="score-label">한국인 평균 IQ 106</span>
+        <span class="score-iq">IQ 95〜110</span>
+      </div>
+      <div class="score-row">
+        <span class="badge" style="background:#27ae60;">16–20</span>
+        <span class="score-label">똑똑함</span>
+        <span class="score-iq">IQ 110〜120</span>
+      </div>
+      <div class="score-row">
+        <span class="badge" style="background:#16a085;">21–24</span>
+        <span class="score-label">재능 있음</span>
+        <span class="score-iq">IQ 120〜135</span>
+      </div>
+      <div class="score-row">
+        <span class="badge" style="background:#1abc9c;">25–27</span>
+        <span class="score-label">뛰어난 지성</span>
+        <span class="score-iq">IQ 135〜145</span>
+      </div>
+      <div class="score-row">
+        <span class="badge" style="background:#8e44ad;">28–30</span>
+        <span class="score-label">천재 수준 ☆</span>
+        <span class="score-iq">IQ 145이상</span>
+      </div>
+    </div>
+
+    <button class="btn-yellow" onclick="startQuiz()">테스트 받기</button>
+  </div>
+
+  <!-- ─── QUIZ ──────────────────────────── -->
+  <div id="quiz" class="card">
+    <div class="q-header">
+      <span class="q-counter" id="q-counter">문제 1 / 30</span>
+      <span class="q-score"   id="q-score">점수: 0</span>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+    </div>
+    <div class="question-text" id="q-text"></div>
+    <div class="options" id="opts"></div>
+    <div class="feedback" id="feedback"></div>
+  </div>
+
+  <!-- ─── RESULT ────────────────────────── -->
+  <div id="result" class="card">
+    <p class="result-eyebrow">🧠 당신의 IQ 추정 결과</p>
+    <div class="result-iq-num"  id="r-iq">--</div>
+    <div class="result-iq-label">추정 IQ</div>
+    <div class="result-level"   id="r-level"></div>
+
+    <div class="result-info-box">
+      <div class="ri-item">
+        <span class="ri-val" id="r-correct">--</span>
+        <span class="ri-lbl">정답 수</span>
+      </div>
+      <div class="ri-item">
+        <span class="ri-val" id="r-wrong">--</span>
+        <span class="ri-lbl">오답 수</span>
+      </div>
+      <div class="ri-item">
+        <span class="ri-val" id="r-pct">--</span>
+        <span class="ri-lbl">정답률</span>
+      </div>
+    </div>
+
+    <div class="result-bar-wrap">
+      <div class="result-bar-bg">
+        <div class="result-bar-fill" id="r-bar" style="width:0%"></div>
+      </div>
+      <div class="result-bar-labels">
+        <span>IQ 60</span><span>IQ 106 (평균)</span><span>IQ 160</span>
+      </div>
+    </div>
+
+    <button class="btn-yellow" onclick="restartQuiz()">다시 테스트 하기</button>
+  </div>
+
+</div>
+
+<script>
+const QUESTIONS = [
+  // ── 수열 패턴 ──────────────────────────────────────────────
+  {
+    q: "다음 수열의 빈칸에 알맞은 수는?\n2, 4, 8, 16, __",
+    opts: ["24", "28", "32", "36"],
+    ans: 2
+  },
+  {
+    q: "다음 수열의 빈칸에 알맞은 수는?\n1, 3, 6, 10, 15, __",
+    opts: ["18", "20", "21", "24"],
+    ans: 2
+  },
+  {
+    q: "다음 수열의 빈칸에 알맞은 수는?\n3, 7, 15, 31, 63, __",
+    opts: ["100", "115", "127", "131"],
+    ans: 2
+  },
+  {
+    q: "다음 수열의 빈칸에 알맞은 수는?\n1, 4, 9, 16, 25, __",
+    opts: ["30", "35", "36", "49"],
+    ans: 2
+  },
+  {
+    q: "다음 수열의 빈칸에 알맞은 수는?\n0, 1, 1, 2, 3, 5, 8, __",
+    opts: ["11", "12", "13", "14"],
+    ans: 2
+  },
+  {
+    q: "다음 수열의 빈칸에 알맞은 수는?\n2, 6, 18, 54, __",
+    opts: ["108", "126", "162", "180"],
+    ans: 2
+  },
+  {
+    q: "다음 수열의 빈칸에 알맞은 수는?\n100, 91, 83, 76, 70, __",
+    opts: ["63", "64", "65", "66"],
+    ans: 2
+  },
+  {
+    q: "다음 수열의 빈칸에 알맞은 수는?\n1, 2, 6, 24, 120, __",
+    opts: ["240", "360", "600", "720"],
+    ans: 3
+  },
+  {
+    q: "다음 수열의 빈칸에 알맞은 수는?\n2, 5, 10, 17, 26, __",
+    opts: ["35", "37", "39", "41"],
+    ans: 1
+  },
+  {
+    q: "다음 수열의 빈칸에 알맞은 수는?\n1, 3, 7, 13, 21, __",
+    opts: ["29", "30", "31", "33"],
+    ans: 2
+  },
+
+  // ── 언어·유추 ──────────────────────────────────────────────
+  {
+    q: "다음 관계와 같은 것을 고르세요.\n의사 : 병원 = 요리사 : __",
+    opts: ["학교", "법원", "주방", "농장"],
+    ans: 2
+  },
+  {
+    q: "다음 중 나머지와 성격이 다른 하나는?",
+    opts: ["사과", "배", "포도", "당근"],
+    ans: 3
+  },
+  {
+    q: "다음 알파벳 관계에서 빈칸에 알맞은 것은?\nA : Z = B : __",
+    opts: ["Y", "X", "W", "A"],
+    ans: 0
+  },
+  {
+    q: "다음 중 나머지와 성격이 다른 하나는?",
+    opts: ["파리", "런던", "베를린", "바르셀로나"],
+    ans: 3
+  },
+  {
+    q: "다음 관계와 같은 것을 고르세요.\n개 : 멍멍 = 고양이 : __",
+    opts: ["음메", "꿀꿀", "야옹", "꼬끼오"],
+    ans: 2
+  },
+
+  // ── 수학 논리 ──────────────────────────────────────────────
+  {
+    q: "다음을 계산하면?\n2 + 3 × 4 = __",
+    opts: ["20", "10", "14", "18"],
+    ans: 2
+  },
+  {
+    q: "어떤 수의 3배에서 6을 빼면 18입니다.\n그 수는?",
+    opts: ["6", "7", "8", "9"],
+    ans: 2
+  },
+  {
+    q: "어떤 수에 5를 곱한 후 7을 더하면 42입니다.\n그 수는?",
+    opts: ["5", "6", "7", "8"],
+    ans: 2
+  },
+  {
+    q: "64의 제곱근은?",
+    opts: ["6", "7", "8", "9"],
+    ans: 2
+  },
+  {
+    q: "다음 중 소수(Prime Number)는?",
+    opts: ["27", "35", "41", "49"],
+    ans: 2
+  },
+  {
+    q: "지도에서 1 cm = 50 km 입니다.\n실제 200 km는 지도에서 몇 cm?",
+    opts: ["3 cm", "4 cm", "5 cm", "6 cm"],
+    ans: 1
+  },
+  {
+    q: "원의 반지름이 2배가 되면 넓이는 몇 배가 됩니까?",
+    opts: ["2배", "3배", "4배", "8배"],
+    ans: 2
+  },
+  {
+    q: "정삼각형의 한 내각은?",
+    opts: ["45°", "60°", "90°", "120°"],
+    ans: 1
+  },
+  {
+    q: "삼각형의 내각의 합은?",
+    opts: ["90°", "180°", "270°", "360°"],
+    ans: 1
+  },
+  {
+    q: "어떤 일을 혼자 하면 12일이 걸립니다.\n같은 속도의 두 사람이 함께 하면 며칠?",
+    opts: ["4일", "6일", "8일", "10일"],
+    ans: 1
+  },
+
+  // ── 논리 추론 ──────────────────────────────────────────────
+  {
+    q: "모든 A는 B입니다. 모든 B는 C입니다.\n따라서 반드시 옳은 것은?",
+    opts: ["모든 C는 A입니다", "모든 A는 C입니다", "A와 C는 무관합니다", "일부 A만 C입니다"],
+    ans: 1
+  },
+  {
+    q: "A가 B보다 나이가 많고, C가 A보다 나이가 많습니다.\n나이 순서가 바르게 된 것은?",
+    opts: ["A > B > C", "C > A > B", "B > A > C", "A > C > B"],
+    ans: 1
+  },
+  {
+    q: "시계가 3시를 가리킬 때, 시침과 분침이 이루는 각도는?",
+    opts: ["45°", "60°", "75°", "90°"],
+    ans: 3
+  },
+  {
+    q: "\"이 나라의 모든 시민은 세금을 냅니다.\n김민준은 세금을 내지 않습니다.\"\n이로부터 확실히 알 수 있는 것은?",
+    opts: ["김민준은 부자입니다", "김민준은 이 나라 시민이 아닙니다", "판단할 수 없습니다", "김민준은 이 나라 시민입니다"],
+    ans: 1
+  },
+  {
+    q: "다음 중 나머지와 성격이 다른 하나는?\n(수의 성질에 주목하세요)\n8, 27, 64, 100, 125",
+    opts: ["8", "64", "100", "125"],
+    ans: 2
+  },
+  {
+    q: "정육면체의 꼭짓점(모서리가 만나는 점)의 수는?",
+    opts: ["4", "6", "8", "12"],
+    ans: 2
+  }
+];
+
+const IQ_MAP = [55,60,65,70,75,79,82,85,88,91,95,97,100,103,106,110,112,114,116,118,120,123,126,130,135,138,141,145,149,154,160];
+
+const LEVELS = [
+  { min: 0,  max: 5,  label: "낮음",            color: "#e74c3c" },
+  { min: 6,  max: 10, label: "평균 이하",        color: "#e67e22" },
+  { min: 11, max: 15, label: "한국인 평균 수준", color: "#d4ac0d" },
+  { min: 16, max: 20, label: "똑똑함",           color: "#27ae60" },
+  { min: 21, max: 24, label: "재능 있음",        color: "#16a085" },
+  { min: 25, max: 27, label: "뛰어난 지성",      color: "#1abc9c" },
+  { min: 28, max: 30, label: "천재 수준 ☆",     color: "#8e44ad" }
+];
+
+let currentQ = 0, score = 0, answered = false;
+const shuffled = [];
+
+function shuffle(arr) {
+  const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.random() * (i+1) | 0; [a[i],a[j]] = [a[j],a[i]]; } return a;
+}
+
+function startQuiz() {
+  currentQ = 0; score = 0; answered = false;
+  shuffled.length = 0;
+  shuffled.push(...shuffle(QUESTIONS));
+  show('quiz');
+  loadQuestion();
+}
+
+function loadQuestion() {
+  answered = false;
+  const qData = shuffled[currentQ];
+
+  document.getElementById('q-counter').textContent = `문제 ${currentQ + 1} / 30`;
+  document.getElementById('q-score').textContent    = `점수: ${score}`;
+  document.getElementById('progress-fill').style.width = `${(currentQ / 30) * 100}%`;
+  document.getElementById('q-text').textContent = qData.q;
+
+  const fb = document.getElementById('feedback');
+  fb.style.display = 'none'; fb.className = 'feedback';
+
+  const optsEl = document.getElementById('opts');
+  optsEl.innerHTML = '';
+  qData.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt';
+    btn.textContent = opt;
+    btn.onclick = () => selectAnswer(btn, i === qData.ans, qData.opts[qData.ans]);
+    optsEl.appendChild(btn);
+  });
+}
+
+function selectAnswer(btn, isCorrect, correctText) {
+  if (answered) return;
+  answered = true;
+
+  const allBtns = document.querySelectorAll('.opt');
+  allBtns.forEach(b => {
+    b.disabled = true;
+    if (b.textContent === correctText) b.classList.add('correct');
+  });
+  if (!isCorrect) btn.classList.add('wrong');
+  if (isCorrect) score++;
+
+  const fb = document.getElementById('feedback');
+  fb.style.display = 'block';
+  if (isCorrect) {
+    fb.className = 'feedback ok';
+    fb.textContent = '✓ 정답입니다!';
+  } else {
+    fb.className = 'feedback bad';
+    fb.textContent = `✗ 오답! 정답: ${correctText}`;
+  }
+
+  setTimeout(() => {
+    currentQ++;
+    if (currentQ < 30) loadQuestion();
+    else showResult();
+  }, 900);
+}
+
+function showResult() {
+  show('result');
+
+  const iq   = IQ_MAP[score];
+  const lvl  = LEVELS.find(l => score >= l.min && score <= l.max);
+  const pct  = Math.round((score / 30) * 100);
+  const barPct = Math.round(((iq - 60) / (160 - 60)) * 100);
+
+  document.getElementById('r-iq').textContent      = iq;
+  document.getElementById('r-level').textContent   = lvl.label;
+  document.getElementById('r-level').style.color   = lvl.color;
+  document.getElementById('r-correct').textContent = score;
+  document.getElementById('r-wrong').textContent   = 30 - score;
+  document.getElementById('r-pct').textContent     = pct + '%';
+
+  const bar = document.getElementById('r-bar');
+  bar.style.background = `linear-gradient(90deg, ${lvl.color}, ${lvl.color}cc)`;
+  setTimeout(() => { bar.style.width = barPct + '%'; }, 100);
+}
+
+function restartQuiz() { show('intro'); }
+
+function show(id) {
+  ['intro','quiz','result'].forEach(s => {
+    document.getElementById(s).style.display = s === id ? 'block' : 'none';
+  });
+}
+</script>
+</body>
+</html>
