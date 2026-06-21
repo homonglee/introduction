@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>강의톤 TTS 변환기 · 이용호</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --surface2: #334155;
+      --accent: #6366f1;
+      --accent-light: #818cf8;
+      --male: #3b82f6;
+      --female: #ec4899;
+      --success: #10b981;
+      --warn: #f59e0b;
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --border: rgba(148,163,184,0.1);
+      --radius: 14px;
+      --radius-sm: 9px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Pretendard', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    /* NAV */
+    .nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(15,23,42,0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 24px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .nav-back {
+      color: var(--text-muted); text-decoration: none;
+      font-size: 14px; display: flex; align-items: center; gap: 6px;
+      transition: color 0.2s;
+    }
+    .nav-back:hover { color: var(--text); }
+    .nav-sep { color: var(--text-dim); }
+    .nav-title { font-size: 15px; font-weight: 600; }
+
+    /* MAIN */
+    .main { max-width: 780px; margin: 0 auto; padding: 40px 20px 80px; }
+
+    /* HERO */
+    .hero { text-align: center; margin-bottom: 36px; }
+    .hero-icon {
+      width: 64px; height: 64px;
+      background: linear-gradient(135deg, var(--accent), #8b5cf6);
+      border-radius: 20px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px; margin: 0 auto 18px;
+      box-shadow: 0 8px 32px rgba(99,102,241,0.35);
+    }
+    .hero-title { font-size: 26px; font-weight: 700; letter-spacing: -0.4px; margin-bottom: 8px; }
+    .hero-desc { color: var(--text-muted); font-size: 15px; line-height: 1.8; }
+
+    /* CARD */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px 24px;
+      margin-bottom: 14px;
+    }
+    .card-label {
+      font-size: 11px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.1em;
+      color: var(--text-dim); margin-bottom: 14px;
+    }
+
+    /* TEXTAREA */
+    .text-input {
+      width: 100%; min-height: 180px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text); font-family: inherit;
+      font-size: 15px; line-height: 1.75; padding: 14px 16px;
+      resize: vertical; outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .text-input:focus {
+      border-color: rgba(99,102,241,0.5);
+      box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
+    }
+    .text-input::placeholder { color: var(--text-dim); }
+    .char-count { text-align: right; font-size: 12px; color: var(--text-dim); margin-top: 6px; }
+
+    /* GENDER BADGE */
+    .gender-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+    .badge {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 7px 15px; border-radius: 100px;
+      font-size: 13px; font-weight: 600;
+      transition: all 0.3s ease;
+    }
+    .badge.neutral { background: var(--surface2); color: var(--text-muted); border: 1px solid var(--border); }
+    .badge.male { background: rgba(59,130,246,0.15); color: #60a5fa; border: 1px solid rgba(59,130,246,0.3); }
+    .badge.female { background: rgba(236,72,153,0.15); color: #f472b6; border: 1px solid rgba(236,72,153,0.3); }
+    .gender-reason { font-size: 12px; color: var(--text-dim); }
+
+    /* OVERRIDE BUTTONS */
+    .override-row { display: flex; align-items: center; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+    .override-label { font-size: 12px; color: var(--text-dim); }
+    .tog {
+      padding: 5px 13px; border-radius: 100px;
+      border: 1px solid var(--border);
+      background: transparent; color: var(--text-muted);
+      font-size: 13px; font-family: inherit; cursor: pointer;
+      transition: all 0.2s;
+    }
+    .tog:hover { border-color: var(--text-muted); color: var(--text); }
+    .tog.active { background: var(--surface2); color: var(--text); border-color: var(--text-muted); }
+    .tog.active.male { background: rgba(59,130,246,0.15); border-color: rgba(59,130,246,0.4); color: #60a5fa; }
+    .tog.active.female { background: rgba(236,72,153,0.15); border-color: rgba(236,72,153,0.4); color: #f472b6; }
+
+    /* SETTINGS */
+    .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media (max-width: 540px) { .settings-grid { grid-template-columns: 1fr; } }
+    .setting-item label {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 13px; color: var(--text-muted); margin-bottom: 10px;
+    }
+    .setting-val { font-weight: 600; color: var(--accent-light); font-size: 13px; }
+    input[type="range"] {
+      width: 100%; height: 4px; border-radius: 2px;
+      background: var(--surface2); outline: none;
+      -webkit-appearance: none; cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 16px; height: 16px;
+      border-radius: 50%; background: var(--accent); cursor: pointer;
+      box-shadow: 0 2px 8px rgba(99,102,241,0.4);
+    }
+
+    /* VOICE INFO */
+    .voice-info {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 12px 14px; background: var(--surface2);
+      border-radius: var(--radius-sm); font-size: 13px;
+      color: var(--text-muted); margin-top: 16px;
+      border: 1px solid var(--border);
+    }
+    .voice-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+
+    /* CONTROLS */
+    .controls { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-play {
+      flex: 1; min-width: 140px; height: 50px;
+      background: linear-gradient(135deg, var(--accent), #8b5cf6);
+      color: white; border: none; border-radius: var(--radius-sm);
+      font-size: 15px; font-weight: 700; font-family: inherit;
+      cursor: pointer; display: flex; align-items: center;
+      justify-content: center; gap: 8px;
+      transition: all 0.2s;
+      box-shadow: 0 4px 16px rgba(99,102,241,0.3);
+    }
+    .btn-play:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(99,102,241,0.4); }
+    .btn-play:active:not(:disabled) { transform: translateY(0); }
+    .btn-play:disabled { opacity: 0.45; cursor: not-allowed; }
+    .btn-secondary {
+      height: 50px; padding: 0 18px;
+      background: var(--surface2); color: var(--text-muted);
+      border: 1px solid var(--border); border-radius: var(--radius-sm);
+      font-size: 14px; font-family: inherit; cursor: pointer;
+      display: flex; align-items: center; gap: 7px;
+      transition: all 0.2s;
+    }
+    .btn-secondary:hover { color: var(--text); border-color: var(--text-muted); }
+    .btn-dl {
+      height: 50px; padding: 0 18px;
+      background: rgba(16,185,129,0.12);
+      color: #34d399; border: 1px solid rgba(16,185,129,0.3);
+      border-radius: var(--radius-sm);
+      font-size: 14px; font-weight: 600; font-family: inherit;
+      cursor: pointer; display: flex; align-items: center; gap: 7px;
+      transition: all 0.2s;
+    }
+    .btn-dl:hover:not(:disabled) { background: rgba(16,185,129,0.22); border-color: rgba(16,185,129,0.5); }
+    .btn-dl:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* PROGRESS */
+    .prog-wrap { height: 3px; background: var(--surface2); border-radius: 2px; overflow: hidden; margin-top: 14px; }
+    .prog-bar { height: 100%; background: linear-gradient(90deg, var(--accent), #8b5cf6); border-radius: 2px; width: 0%; transition: width 0.15s linear; }
+
+    /* STATUS BAR */
+    .status {
+      display: flex; align-items: center; gap: 9px;
+      padding: 11px 14px; border-radius: var(--radius-sm);
+      font-size: 13px; min-height: 44px; margin-top: 12px;
+      background: var(--surface2); color: var(--text-dim);
+      border: 1px solid transparent;
+      transition: all 0.3s;
+    }
+    .status.playing { background: rgba(99,102,241,0.1); color: var(--accent-light); border-color: rgba(99,102,241,0.2); }
+    .status.recording { background: rgba(239,68,68,0.1); color: #f87171; border-color: rgba(239,68,68,0.2); }
+    .status.done { background: rgba(16,185,129,0.1); color: #34d399; border-color: rgba(16,185,129,0.2); }
+    .status.error { background: rgba(239,68,68,0.08); color: #fca5a5; border-color: rgba(239,68,68,0.15); }
+
+    /* WAVE ANIMATION */
+    .wave { display: flex; align-items: center; gap: 3px; height: 18px; flex-shrink: 0; }
+    .wave span { display: block; width: 3px; border-radius: 2px; background: currentColor; animation: wv 1s ease-in-out infinite; }
+    .wave span:nth-child(1) { animation-delay: 0s; }
+    .wave span:nth-child(2) { animation-delay: 0.1s; }
+    .wave span:nth-child(3) { animation-delay: 0.2s; }
+    .wave span:nth-child(4) { animation-delay: 0.3s; }
+    .wave span:nth-child(5) { animation-delay: 0.4s; }
+    @keyframes wv { 0%,100% { height: 3px; } 50% { height: 16px; } }
+
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+    .pulse { animation: pulse 1.2s ease-in-out infinite; }
+
+    /* MODAL */
+    .modal-bg {
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(0,0,0,0.65); backdrop-filter: blur(6px);
+      display: flex; align-items: center; justify-content: center; padding: 20px;
+      opacity: 0; pointer-events: none; transition: opacity 0.2s;
+    }
+    .modal-bg.open { opacity: 1; pointer-events: all; }
+    .modal {
+      background: var(--surface);
+      border: 1px solid rgba(148,163,184,0.15);
+      border-radius: var(--radius); padding: 28px;
+      max-width: 440px; width: 100%;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    }
+    .modal h3 { font-size: 17px; margin-bottom: 10px; }
+    .modal p { font-size: 13px; color: var(--text-muted); line-height: 1.7; margin-bottom: 4px; }
+    .steps { list-style: none; margin: 16px 0 22px; }
+    .steps li {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 9px 0; font-size: 13px; color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+    }
+    .steps li:last-child { border-bottom: none; }
+    .step-n {
+      width: 22px; height: 22px; border-radius: 50%;
+      background: var(--accent); color: white;
+      font-size: 11px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; margin-top: 1px;
+    }
+    .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+    .btn-cancel {
+      padding: 9px 18px; background: var(--surface2);
+      border: 1px solid var(--border); border-radius: var(--radius-sm);
+      color: var(--text-muted); font-family: inherit; font-size: 14px; cursor: pointer;
+    }
+    .btn-ok {
+      padding: 9px 20px; background: var(--accent);
+      border: none; border-radius: var(--radius-sm);
+      color: white; font-family: inherit; font-size: 14px;
+      font-weight: 600; cursor: pointer;
+    }
+    .btn-ok:hover { background: #4f46e5; }
+
+    /* NOTICE */
+    .notice {
+      padding: 12px 14px;
+      background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.25);
+      border-radius: var(--radius-sm); font-size: 13px; color: #fbbf24;
+      margin-top: 14px; line-height: 1.7;
+    }
+
+    .divider { height: 1px; background: var(--border); margin: 16px 0; }
+
+    footer {
+      text-align: center; padding: 28px 20px;
+      font-size: 12px; color: var(--text-dim);
+    }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <a class="nav-back" href="./index.html">← 이용호 프로필</a>
+  <span class="nav-sep">·</span>
+  <span class="nav-title">강의톤 TTS 변환기</span>
+</nav>
+
+<main class="main">
+
+  <header class="hero">
+    <div class="hero-icon">🎙️</div>
+    <h1 class="hero-title">강의톤 TTS 변환기</h1>
+    <p class="hero-desc">텍스트 내용을 자동 분석해 남성·여성 목소리를 선택하고<br>강의 스타일 TTS로 변환합니다.</p>
+  </header>
+
+  <!-- TEXT INPUT -->
+  <div class="card">
+    <div class="card-label">텍스트 입력</div>
+    <textarea
+      class="text-input"
+      id="textInput"
+      placeholder="강의 스크립트나 변환할 텍스트를 입력하세요.&#10;&#10;예) 오늘은 인공지능의 기초 개념에 대해 알아보겠습니다..."
+      oninput="onTextChange()"
+    ></textarea>
+    <div class="char-count"><span id="charCount">0</span>자</div>
+
+    <div class="gender-row">
+      <span id="genderBadge" class="badge neutral">
+        <span id="genderIcon">🔍</span>
+        <span id="genderText">텍스트를 입력하면 자동 분석됩니다</span>
+      </span>
+      <span class="gender-reason" id="genderReason"></span>
+    </div>
+
+    <div class="override-row">
+      <span class="override-label">수동 선택:</span>
+      <button class="tog" id="tog-auto" onclick="setOverride('auto')">🔍 자동</button>
+      <button class="tog" id="tog-male" onclick="setOverride('male')">👨 남성</button>
+      <button class="tog" id="tog-female" onclick="setOverride('female')">👩 여성</button>
+    </div>
+  </div>
+
+  <!-- LECTURE SETTINGS -->
+  <div class="card">
+    <div class="card-label">강의 설정</div>
+    <div class="settings-grid">
+      <div class="setting-item">
+        <label>
+          말하기 속도
+          <span class="setting-val" id="rateVal">0.82×</span>
+        </label>
+        <input type="range" id="rateRange" min="0.5" max="1.5" step="0.01" value="0.82"
+          oninput="document.getElementById('rateVal').textContent = parseFloat(this.value).toFixed(2) + '×'">
+      </div>
+      <div class="setting-item">
+        <label>
+          음높이 (Pitch)
+          <span class="setting-val" id="pitchVal">자동</span>
+        </label>
+        <input type="range" id="pitchRange" min="0.5" max="2.0" step="0.05" value="1.0"
+          oninput="onPitchChange(this.value)">
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="voice-info" id="voiceInfo">
+      <span class="voice-dot" style="background:var(--text-dim)"></span>
+      <span>음성 목록 로딩 중...</span>
+    </div>
+  </div>
+
+  <!-- CONTROLS -->
+  <div class="card">
+    <div class="card-label">재생 / 다운로드</div>
+    <div class="controls">
+      <button class="btn-play" id="playBtn" onclick="togglePlay()" disabled>
+        <span id="playIcon">▶</span>
+        <span id="playLabel">재생</span>
+      </button>
+      <button class="btn-secondary" id="stopBtn" onclick="stopAll()" style="display:none">
+        ⏹ 정지
+      </button>
+      <button class="btn-dl" id="dlBtn" onclick="startDownload()" disabled>
+        ⬇ 다운로드
+      </button>
+    </div>
+
+    <div class="prog-wrap" id="progWrap" style="display:none">
+      <div class="prog-bar" id="progBar"></div>
+    </div>
+
+    <div class="status" id="statusBar">
+      텍스트를 입력하면 재생 버튼이 활성화됩니다.
+    </div>
+
+    <div class="notice" id="dlNotice" style="display:none">
+      💡 <strong>다운로드 방법:</strong> 팝업창에서 <strong>현재 탭</strong>을 선택하고 <strong>탭 오디오 공유</strong>를 체크한 뒤 공유하면 TTS 재생이 시작되고 자동으로 저장됩니다. (Chrome/Edge 권장)
+    </div>
+  </div>
+
+</main>
+
+<!-- DOWNLOAD MODAL -->
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <h3>🎙️ 탭 오디오 녹음 안내</h3>
+    <p>브라우저 탭의 오디오를 녹음해 다운로드합니다.</p>
+    <p>팝업창이 열리면 아래 순서대로 진행하세요.</p>
+    <ul class="steps">
+      <li>
+        <span class="step-n">1</span>
+        <span>공유 대상에서 <strong style="color:var(--text)">Chrome 탭</strong> 또는 <strong style="color:var(--text)">현재 탭</strong>을 선택합니다.</span>
+      </li>
+      <li>
+        <span class="step-n">2</span>
+        <span><strong style="color:var(--text)">탭 오디오 공유</strong> (Share tab audio) 체크박스를 체크합니다.</span>
+      </li>
+      <li>
+        <span class="step-n">3</span>
+        <span><strong style="color:var(--text)">공유</strong> 버튼을 누르면 TTS가 자동 재생되고 녹음됩니다.</span>
+      </li>
+      <li>
+        <span class="step-n">4</span>
+        <span>재생이 끝나면 오디오 파일이 자동으로 다운로드됩니다.</span>
+      </li>
+    </ul>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">취소</button>
+      <button class="btn-ok" onclick="confirmDownload()">녹음 시작</button>
+    </div>
+  </div>
+</div>
+
+<footer>Web Speech API 기반 · 브라우저 내장 TTS 엔진 사용 · Chrome / Edge 권장</footer>
+
+<script>
+// ── STATE ──────────────────────────────────────────────
+let voices = [];
+let currentGender = 'male';
+let genderOverride = 'auto';
+let isSpeaking = false;
+let isPaused = false;
+let progInterval = null;
+let mediaRecorder = null;
+let audioChunks = [];
+
+// ── GENDER DETECTION ───────────────────────────────────
+const MARKERS = {
+  female: {
+    strong: ['그녀','여성','여자','어머니','엄마','언니','누나','딸','아내','부인','할머니','여학생','여배우','여교사','여의사','임신','출산','산모','간호사'],
+    weak:   ['뷰티','화장','패션','육아','돌봄','복지','보육','요리','영양','태아']
+  },
+  male: {
+    strong: ['그는','남성','남자','아버지','아빠','형','오빠','아들','남편','할아버지','남학생','군인','병사','사병'],
+    weak:   ['기술','엔지니어','개발자','프로그래밍','군대','축구','야구','공학','기계','전자']
+  }
+};
+
+function detectGender(text) {
+  if (!text || text.trim().length < 3) return { gender: 'male', reason: '', confidence: 0 };
+  const scores = { female: 0, male: 0 };
+  const hits   = { female: [], male: [] };
+
+  ['female','male'].forEach(g => {
+    MARKERS[g].strong.forEach(w => {
+      const n = (text.match(new RegExp(w,'g')) || []).length;
+      if (n) { scores[g] += n * 3; hits[g].push(w); }
+    });
+    MARKERS[g].weak.forEach(w => {
+      const n = (text.match(new RegExp(w,'gi')) || []).length;
+      if (n) { scores[g] += n; if (!hits[g].includes(w)) hits[g].push(w); }
+    });
+  });
+
+  if (scores.female === 0 && scores.male === 0)
+    return { gender: 'male', reason: '기본값 (남성)', confidence: 0 };
+
+  const gender = scores.female > scores.male ? 'female' : 'male';
+  const top = hits[gender].slice(0, 3).join(', ');
+  const reason = `${gender === 'female' ? '여성' : '남성'} 키워드 감지: ${top}`;
+  return { gender, reason, confidence: Math.abs(scores.female - scores.male) };
+}
+
+// ── VOICES ─────────────────────────────────────────────
+function loadVoices() {
+  voices = window.speechSynthesis.getVoices();
+  if (voices.length) updateVoiceInfo();
+}
+window.speechSynthesis.onvoiceschanged = loadVoices;
+loadVoices();
+setTimeout(loadVoices, 600);
+
+function pickVoice(gender) {
+  if (!voices.length) voices = window.speechSynthesis.getVoices();
+  const ko = voices.filter(v => v.lang.startsWith('ko'));
+
+  const femaleNames = /female|여성|seoyeon|yuna|지현|지은|나나|혜진|선영|미영/i;
+  const maleNames   = /male|남성|junho|준호|시우|현우|민준|재민/i;
+
+  if (gender === 'female') {
+    return ko.find(v => femaleNames.test(v.name))
+        || (ko.length > 1 ? ko[ko.length - 1] : null)
+        || ko[0]
+        || voices.find(v => /female|zira|samantha|fiona|victoria/i.test(v.name))
+        || voices[0];
+  } else {
+    return ko.find(v => maleNames.test(v.name))
+        || ko[0]
+        || voices.find(v => /male|david|mark|daniel|alex/i.test(v.name))
+        || voices[0];
+  }
+}
+
+function updateVoiceInfo() {
+  const g = genderOverride === 'auto' ? currentGender : genderOverride;
+  const v = pickVoice(g);
+  const el = document.getElementById('voiceInfo');
+  if (!v) {
+    el.innerHTML = '<span class="voice-dot" style="background:var(--text-dim)"></span><span>사용 가능한 음성 없음 — 브라우저를 새로고침해 보세요.</span>';
+    return;
+  }
+  const isKo = v.lang.startsWith('ko');
+  const dot = isKo ? 'var(--success)' : 'var(--warn)';
+  const tag = isKo ? '✅ 한국어' : '⚠️ 비한국어 (시스템에 한국어 TTS 미설치일 수 있음)';
+  el.innerHTML = `<span class="voice-dot" style="background:${dot}"></span>
+    <span><strong style="color:var(--text)">${v.name}</strong> &nbsp;·&nbsp; ${v.lang} &nbsp;·&nbsp; ${tag}</span>`;
+}
+
+// ── TEXT CHANGE ────────────────────────────────────────
+let debTimer;
+function onTextChange() {
+  clearTimeout(debTimer);
+  debTimer = setTimeout(() => {
+    const text = document.getElementById('textInput').value;
+    document.getElementById('charCount').textContent = text.length;
+    const hasText = text.trim().length > 0;
+    document.getElementById('playBtn').disabled = !hasText;
+    document.getElementById('dlBtn').disabled   = !hasText;
+
+    if (genderOverride === 'auto') {
+      const r = detectGender(text);
+      currentGender = r.gender;
+      renderBadge(r.gender, r.reason, r.confidence);
+      updateVoiceInfo();
+    }
+  }, 280);
+}
+
+function renderBadge(gender, reason, confidence) {
+  const badge  = document.getElementById('genderBadge');
+  const icon   = document.getElementById('genderIcon');
+  const label  = document.getElementById('genderText');
+  const rsn    = document.getElementById('genderReason');
+
+  if (confidence === 0) {
+    badge.className = 'badge neutral';
+    icon.textContent = '🔍';
+    label.textContent = '기본 남성 목소리';
+  } else if (gender === 'female') {
+    badge.className = 'badge female';
+    icon.textContent = '👩';
+    label.textContent = '여성 목소리 자동 선택';
+  } else {
+    badge.className = 'badge male';
+    icon.textContent = '👨';
+    label.textContent = '남성 목소리 자동 선택';
+  }
+  rsn.textContent = reason || '';
+}
+
+// ── OVERRIDE ───────────────────────────────────────────
+function setOverride(val) {
+  genderOverride = val;
+  document.getElementById('tog-auto').className   = 'tog' + (val==='auto'   ? ' active' : '');
+  document.getElementById('tog-male').className   = 'tog' + (val==='male'   ? ' active male' : '');
+  document.getElementById('tog-female').className = 'tog' + (val==='female' ? ' active female' : '');
+
+  if (val !== 'auto') {
+    currentGender = val;
+    renderBadge(val, '수동으로 설정됨', 1);
+    updateVoiceInfo();
+  } else {
+    onTextChange();
+  }
+}
+
+// ── PITCH DISPLAY ──────────────────────────────────────
+function onPitchChange(v) {
+  const f = parseFloat(v);
+  const el = document.getElementById('pitchVal');
+  if (f === 1.0) el.textContent = '기본';
+  else if (f < 1.0) el.textContent = f.toFixed(2) + ' (낮음)';
+  else el.textContent = f.toFixed(2) + ' (높음)';
+}
+
+// ── TTS ────────────────────────────────────────────────
+function togglePlay() {
+  if (isSpeaking && !isPaused) pauseTTS();
+  else if (isPaused) resumeTTS();
+  else playTTS();
+}
+
+function playTTS(onEndCb) {
+  const text = document.getElementById('textInput').value.trim();
+  if (!text) return;
+
+  window.speechSynthesis.cancel();
+  const g = genderOverride === 'auto' ? currentGender : genderOverride;
+  const voice = pickVoice(g);
+
+  // Chrome bug: cancel long utterances by re-speaking in chunks
+  const chunks = splitText(text);
+  speakChunks(chunks, 0, voice, onEndCb);
+}
+
+function splitText(text, maxLen = 180) {
+  const sentences = text.split(/(?<=[.!?。！？\n])\s*/);
+  const chunks = [];
+  let cur = '';
+  for (const s of sentences) {
+    if (cur.length + s.length > maxLen && cur) { chunks.push(cur.trim()); cur = s; }
+    else cur += (cur ? ' ' : '') + s;
+  }
+  if (cur.trim()) chunks.push(cur.trim());
+  return chunks.length ? chunks : [text];
+}
+
+function speakChunks(chunks, idx, voice, onEndCb) {
+  if (idx >= chunks.length) {
+    isSpeaking = false; isPaused = false;
+    setPlayState(false);
+    setStatus('✅ 재생 완료', 'done');
+    if (onEndCb) onEndCb();
+    return;
+  }
+
+  const u = new SpeechSynthesisUtterance(chunks[idx]);
+  u.voice  = voice;
+  u.rate   = parseFloat(document.getElementById('rateRange').value);
+  u.pitch  = parseFloat(document.getElementById('pitchRange').value);
+  u.volume = 1.0;
+  u.lang   = voice ? voice.lang : 'ko-KR';
+
+  u.onstart = () => {
+    if (idx === 0) { isSpeaking = true; isPaused = false; setPlayState(true); }
+  };
+  u.onend = () => speakChunks(chunks, idx + 1, voice, onEndCb);
+  u.onerror = (e) => {
+    isSpeaking = false; isPaused = false;
+    setPlayState(false);
+    setStatus('오류: ' + e.error, 'error');
+  };
+
+  window.speechSynthesis.speak(u);
+}
+
+function pauseTTS() {
+  window.speechSynthesis.pause();
+  isPaused = true;
+  document.getElementById('playIcon').textContent  = '▶';
+  document.getElementById('playLabel').textContent = '계속 재생';
+  setStatus('일시정지됨', '');
+  clearInterval(progInterval);
+}
+
+function resumeTTS() {
+  window.speechSynthesis.resume();
+  isPaused = false;
+  document.getElementById('playIcon').textContent  = '⏸';
+  document.getElementById('playLabel').textContent = '일시정지';
+  setStatus('재생 중...', 'playing');
+  startProg();
+}
+
+function stopAll() {
+  window.speechSynthesis.cancel();
+  if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
+  isSpeaking = false; isPaused = false;
+  setPlayState(false);
+  setStatus('정지됨', '');
+}
+
+function setPlayState(on) {
+  document.getElementById('playIcon').textContent  = on ? '⏸' : '▶';
+  document.getElementById('playLabel').textContent = on ? '일시정지' : '재생';
+  document.getElementById('stopBtn').style.display = on ? 'flex' : 'none';
+  document.getElementById('progWrap').style.display = on ? 'block' : 'none';
+  if (on) { setStatus('재생 중...', 'playing'); startProg(); }
+  else { clearInterval(progInterval); document.getElementById('progBar').style.width = '0%'; }
+}
+
+function startProg() {
+  clearInterval(progInterval);
+  let p = parseFloat(document.getElementById('progBar').style.width) || 0;
+  const text = document.getElementById('textInput').value;
+  const rate = parseFloat(document.getElementById('rateRange').value);
+  const dur = (text.length / 3.5 / rate) * 1000;
+  const step = 100 / (dur / 120);
+  progInterval = setInterval(() => {
+    if (!isSpeaking || isPaused) return;
+    p = Math.min(p + step, 92);
+    document.getElementById('progBar').style.width = p + '%';
+  }, 120);
+}
+
+function setStatus(msg, type) {
+  const el = document.getElementById('statusBar');
+  el.className = 'status' + (type ? ' ' + type : '');
+  if (type === 'playing') {
+    el.innerHTML = `<div class="wave"><span></span><span></span><span></span><span></span><span></span></div><span>${msg}</span>`;
+  } else if (type === 'recording') {
+    el.innerHTML = `<span class="pulse">🔴</span><span>${msg}</span>`;
+  } else {
+    el.textContent = msg;
+  }
+}
+
+// ── DOWNLOAD ───────────────────────────────────────────
+function startDownload() {
+  const text = document.getElementById('textInput').value.trim();
+  if (!text) return;
+  if (!navigator.mediaDevices?.getDisplayMedia) {
+    alert('이 브라우저는 탭 오디오 녹음을 지원하지 않습니다.\nChrome 또는 Edge 브라우저를 사용해 주세요.');
+    return;
+  }
+  document.getElementById('dlNotice').style.display = 'block';
+  document.getElementById('modalBg').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modalBg').classList.remove('open');
+}
+
+async function confirmDownload() {
+  closeModal();
+  window.speechSynthesis.cancel();
+  isSpeaking = false; isPaused = false; setPlayState(false);
+
+  setStatus('화면 공유 권한 요청 중...', 'recording');
+
+  try {
+    const stream = await navigator.mediaDevices.getDisplayMedia({ audio: true, video: true });
+    stream.getVideoTracks().forEach(t => t.stop());
+
+    const audioTracks = stream.getAudioTracks();
+    if (!audioTracks.length) {
+      stream.getTracks().forEach(t => t.stop());
+      setStatus('탭 오디오 트랙 없음 — "탭 오디오 공유"를 체크했는지 확인하세요.', 'error');
+      return;
+    }
+
+    const audioStream = new MediaStream(audioTracks);
+    const mime = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+      ? 'audio/webm;codecs=opus' : 'audio/webm';
+
+    mediaRecorder = new MediaRecorder(audioStream, { mimeType: mime });
+    audioChunks = [];
+
+    mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
+    mediaRecorder.onstop = () => {
+      const blob = new Blob(audioChunks, { type: mime });
+      const url  = URL.createObjectURL(blob);
+      const a    = Object.assign(document.createElement('a'), { href: url, download: 'tts_강의.webm' });
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 5000);
+      stream.getTracks().forEach(t => t.stop());
+      isSpeaking = false; isPaused = false; setPlayState(false);
+      setStatus('✅ 다운로드 완료! (WebM 오디오 파일)', 'done');
+    };
+
+    mediaRecorder.start(100);
+    setStatus('🔴 녹음 중 · TTS 재생 중...', 'recording');
+
+    setTimeout(() => {
+      playTTS(() => {
+        setTimeout(() => {
+          if (mediaRecorder?.state !== 'inactive') mediaRecorder.stop();
+        }, 600);
+      });
+    }, 600);
+
+    stream.oninactive = () => {
+      if (mediaRecorder?.state !== 'inactive') mediaRecorder.stop();
+      window.speechSynthesis.cancel();
+      setStatus('화면 공유가 중단되었습니다.', '');
+    };
+
+  } catch (err) {
+    if (err.name === 'NotAllowedError') {
+      setStatus('권한이 거부되었습니다. 탭을 공유해야 녹음할 수 있습니다.', 'error');
+    } else {
+      setStatus('오류: ' + err.message, 'error');
+    }
+  }
+}
+
+// ── INIT ───────────────────────────────────────────────
+setOverride('auto');
+document.getElementById('tog-auto').className = 'tog active';
+setStatus('텍스트를 입력하면 재생 버튼이 활성화됩니다.');
+if (window.speechSynthesis.getVoices().length) loadVoices();
+</script>
+</body>
+</html>
